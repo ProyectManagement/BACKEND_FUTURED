@@ -1,231 +1,1222 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encuesta Socioeconómica</title>
-    <style>
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; }
-        .required { color: red; }
-    </style>
-</head>
-<body>
-    <h1>Encuesta Socioeconómica</h1>
-    <p>Esta encuesta está dirigida a los alumnos de nuevo ingreso de la Universidad Tecnológica del Valle de Toluca. Su propósito es analizar los datos recopilados para identificar posibles casos de abandono escolar.</p>
-    <p><span class="required">*</span> Indica que la pregunta es obligatoria.</p>
+@extends('layouts.app')
 
-    <form action="{{ route('encuesta.store') }}" method="POST">
+@section('content')
+<div class="container">
+    {{-- Mensajes de éxito/error --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+            <strong>¡Éxito!</strong> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+            <strong>Error:</strong> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+            <strong>Errores encontrados:</strong>
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <h1 class="text-center mb-4">Formulario de Prevención de Abandono Escolar</h1>
+    <form id="form-abandono" action="{{ route('encuesta.store') }}" method="POST" class="needs-validation" novalidate>
         @csrf
 
-        <!-- Datos Personales -->
-        <div class="form-group">
-            <label for="matricula">Matrícula <span class="required">*</span></label>
-            <input type="text" name="matricula" id="matricula" required>
+        <!-- Barra de progreso -->
+        <div class="progress mb-4">
+            <div id="form-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
         </div>
 
-        <div class="form-group">
-            <label for="nombre">Nombre(s) <span class="required">*</span></label>
-            <input type="text" name="nombre" id="nombre" required>
-        </div>
+        <!-- ========================== -->
+        <!-- SECCIÓN 1: DATOS PERSONALES -->
+        <!-- ========================== -->
+        <fieldset class="form-section active" data-section="1">
+            <legend class="fw-bold">1. Datos Personales</legend>
+            
+            <div class="row g-3">
+                <!-- Matrícula y Correo -->
+                <div class="col-md-6">
+                    <label for="matricula" class="form-label">Matrícula*</label>
+                    <input type="text" class="form-control @error('matricula') is-invalid @enderror" id="matricula" name="matricula" 
+                           value="{{ old('matricula', $datos['matricula'] ?? '') }}" required
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    @error('matricula')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="invalid-feedback">Por favor ingresa una matrícula válida (solo números)</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="apellido_paterno">Apellido Paterno <span class="required">*</span></label>
-            <input type="text" name="apellido_paterno" id="apellido_paterno" required>
-        </div>
+                <div class="col-md-6">
+                    <label for="correo" class="form-label">Correo Institucional*</label>
+                    <input type="email" class="form-control @error('correo') is-invalid @enderror" id="correo" name="correo" 
+                           value="{{ old('correo', $datos['correo'] ?? '') }}" required>
+                    @error('correo')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="apellido_materno">Apellido Materno <span class="required">*</span></label>
-            <input type="text" name="apellido_materno" id="apellido_materno" required>
-        </div>
+                <!-- Nombre Completo -->
+                <div class="col-md-4">
+                    <label for="nombre" class="form-label">Nombre(s)*</label>
+                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" 
+                           value="{{ old('nombre', $datos['nombre'] ?? '') }}" required>
+                    @error('nombre')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="sexo">Sexo <span class="required">*</span></label>
-            <select name="sexo" id="sexo" required>
-                <option value="Femenino">Femenino</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Otros">Otros</option>
-            </select>
-        </div>
+                <div class="col-md-4">
+                    <label for="apellido_paterno" class="form-label">Apellido Paterno*</label>
+                    <input type="text" class="form-control @error('apellido_paterno') is-invalid @enderror" id="apellido_paterno" name="apellido_paterno" 
+                           value="{{ old('apellido_paterno', $datos['apellido_paterno'] ?? '') }}" required>
+                    @error('apellido_paterno')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="estado_civil">Estado Civil <span class="required">*</span></label>
-            <select name="estado_civil" id="estado_civil" required>
-                <option value="Soltero">Soltero</option>
-                <option value="Casado">Casado</option>
-                <option value="Union Libre">Unión Libre</option>
-                <option value="Otros">Otros</option>
-            </select>
-        </div>
+                <!-- Apellido materno ahora es obligatorio -->
+                <div class="col-md-4">
+                    <label for="apellido_materno" class="form-label">Apellido Materno*</label>
+                    <input type="text" class="form-control @error('apellido_materno') is-invalid @enderror" id="apellido_materno" name="apellido_materno" 
+                           value="{{ old('apellido_materno', $datos['apellido_materno'] ?? '') }}" required>
+                    @error('apellido_materno')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <!-- Vivienda -->
-        <div class="form-group">
-            <label for="vive_con">¿Con quién vives actualmente? <span class="required">*</span></label>
-            <select name="vive_con" id="vive_con" required>
-                <option value="Solo">Solo</option>
-                <option value="Familia">Familia</option>
-                <option value="Otros">Otros</option>
-            </select>
-        </div>
+                <!-- Datos Académicos Básicos -->
+                <div class="col-md-6">
+                    <label for="id_carrera" class="form-label">Carrera*</label>
+                    <select class="form-select @error('id_carrera') is-invalid @enderror" id="id_carrera" name="id_carrera" required>
+                        <option value="">Seleccione...</option>
+                        @foreach($carreras as $carrera)
+                            <option value="{{ $carrera->_id }}" {{ old('id_carrera', $datos['id_carrera'] ?? '') == $carrera->_id ? 'selected' : '' }}>
+                                {{ $carrera->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('id_carrera')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="sosten_economico">¿Quién es el principal sostén económico de tu hogar? <span class="required">*</span></label>
-            <select name="sosten_economico" id="sosten_economico" required>
-                <option value="Padre">Padre</option>
-                <option value="Madre">Madre</option>
-                <option value="Ambos">Ambos</option>
-                <option value="Yo mismo">Yo mismo</option>
-                <option value="Otros">Otros</option>
-            </select>
-        </div>
+                <div class="col-md-6"> 
+    <label for="id_grupo" class="form-label">Grupo*</label>
+    <select class="form-select @error('id_grupo') is-invalid @enderror" id="id_grupo" name="id_grupo" required>
+        <option value="">Seleccione una carrera primero</option>
+        @if(old('id_carrera', $datos['id_carrera'] ?? ''))
+            @foreach($grupos as $grupo)
+                @if((string) $grupo->id_carrera === old('id_carrera', $datos['id_carrera'] ?? ''))
+                    <option value="{{ $grupo->_id }}" {{ old('id_grupo', $datos['id_grupo'] ?? '') == (string) $grupo->_id ? 'selected' : '' }}>
+                        {{ $grupo->nombre }}
+                    </option>
+                @endif
+            @endforeach
+        @endif
+    </select>
+    @error('id_grupo')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
 
-        <div class="form-group">
-            <label for="tipo_vivienda">¿Dónde vives actualmente? <span class="required">*</span></label>
-            <select name="tipo_vivienda" id="tipo_vivienda" required>
-                <option value="Casa propia">Casa propia</option>
-                <option value="Rentada">Rentada</option>
-                <option value="Prestada">Prestada</option>
-            </select>
-        </div>
 
-        <div class="form-group">
-            <label for="pago_renta">¿Cuánto pagas de renta?</label>
-            <input type="text" name="pago_renta" id="pago_renta">
-        </div>
 
-        <div class="form-group">
-            <label for="quien_presta_vivienda">¿Quién te presta la vivienda?</label>
-            <input type="text" name="quien_presta_vivienda" id="quien_presta_vivienda">
-        </div>
+                <!-- Datos Demográficos -->
+                <div class="col-md-4">
+                    <label for="curp" class="form-label">CURP*</label>
+                    <input type="text" class="form-control @error('curp') is-invalid @enderror" id="curp" name="curp" 
+                           value="{{ old('curp', $datos['curp'] ?? '') }}" required
+                           oninput="this.value = this.value.toUpperCase()">
+                    @error('curp')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <!-- Servicios -->
-        <div class="form-group">
-            <label>¿Cuentas con los siguientes servicios en casa? <span class="required">*</span></label>
-            <div>
-                <input type="checkbox" name="servicios[]" value="Luz"> Luz<br>
-                <input type="checkbox" name="servicios[]" value="Agua"> Agua<br>
-                <input type="checkbox" name="servicios[]" value="Internet"> Internet<br>
-                <input type="checkbox" name="servicios[]" value="Gas"> Gas<br>
+                <div class="col-md-4">
+                    <label for="genero" class="form-label">Género*</label>
+                    <select class="form-select @error('genero') is-invalid @enderror" id="genero" name="genero" required>
+                        <option value="">Seleccione...</option>
+                        <option value="Hombre" {{ old('genero', $datos['genero'] ?? '') == 'Hombre' ? 'selected' : '' }}>Hombre</option>
+                        <option value="Mujer" {{ old('genero', $datos['genero'] ?? '') == 'Mujer' ? 'selected' : '' }}>Mujer</option>
+                        <option value="Otro" {{ old('genero', $datos['genero'] ?? '') == 'Otro' ? 'selected' : '' }}>Otro</option>
+                    </select>
+                    @error('genero')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="edad" class="form-label">Edad*</label>
+                    <input type="number" class="form-control @error('edad') is-invalid @enderror" id="edad" name="edad" min="15" max="50" 
+                           value="{{ old('edad', $datos['edad'] ?? '') }}" required>
+                    @error('edad')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="acceso_internet">¿Tienes acceso a internet en casa? <span class="required">*</span></label>
-            <select name="acceso_internet" id="acceso_internet" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-next" data-next="2">Siguiente</button>
+            </div>
+        </fieldset>
 
-        <div class="form-group">
-            <label for="lugar_conexion">¿En dónde te conectas normalmente?</label>
-            <input type="text" name="lugar_conexion" id="lugar_conexion">
-        </div>
+        <!-- ========================== -->
+        <!-- SECCIÓN 2: CONTACTO Y DOMICILIO -->
+        <!-- ========================== -->
+        <fieldset class="form-section" data-section="2" style="display:none;">
+            <legend class="fw-bold">2. Contacto y Domicilio</legend>
+            
+            <div class="row g-3">
+                <!-- Teléfonos (solo números) -->
+                <div class="col-md-6">
+                    <label for="telefono_celular" class="form-label">Teléfono Celular*</label>
+                    <input type="tel" class="form-control @error('telefono_celular') is-invalid @enderror" id="telefono_celular" name="telefono_celular" 
+                           value="{{ old('telefono_celular', $datos['telefono_celular'] ?? '') }}" required
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    @error('telefono_celular')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="invalid-feedback">Por favor ingresa solo números</div>
+                    @enderror
+                </div>
 
-        <!-- Equipamiento -->
-        <div class="form-group">
-            <label for="tiene_computadora">¿Tienes computadora o laptop? <span class="required">*</span></label>
-            <select name="tiene_computadora" id="tiene_computadora" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <div class="col-md-6">
+                    <label for="telefono_casa" class="form-label">Teléfono de Casa</label>
+                    <input type="tel" class="form-control @error('telefono_casa') is-invalid @enderror" id="telefono_casa" name="telefono_casa" 
+                           value="{{ old('telefono_casa', $datos['telefono_casa'] ?? '') }}"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    @error('telefono_casa')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="electricidad_estable">¿Tienes servicio de electricidad estable? <span class="required">*</span></label>
-            <select name="electricidad_estable" id="electricidad_estable" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <!-- Domicilio -->
+                <div class="col-md-6">
+                    <label for="calle" class="form-label">Calle*</label>
+                    <input type="text" class="form-control @error('direccion.calle') is-invalid @enderror" id="calle" name="direccion[calle]" 
+                           value="{{ old('direccion.calle', $datos['direccion']['calle'] ?? '') }}" required>
+                    @error('direccion.calle')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="tipo_computadora">¿Es propia o prestada?</label>
-            <select name="tipo_computadora" id="tipo_computadora">
-                <option value="Propia">Propia</option>
-                <option value="Prestada">Prestada</option>
-            </select>
-        </div>
+                <div class="col-md-3">
+                    <label for="no_exterior" class="form-label">Número Exterior*</label>
+                    <input type="text" class="form-control @error('direccion.no_exterior') is-invalid @enderror" id="no_exterior" name="direccion[no_exterior]" 
+                           value="{{ old('direccion.no_exterior', $datos['direccion']['no_exterior'] ?? '') }}" required>
+                    @error('direccion.no_exterior')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="acceso_impresora">¿Tienes acceso a impresora o escáner? <span class="required">*</span></label>
-            <select name="acceso_impresora" id="acceso_impresora" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <div class="col-md-3">
+                    <label for="no_interior" class="form-label">Número Interior</label>
+                    <input type="text" class="form-control @error('direccion.no_interior') is-invalid @enderror" id="no_interior" name="direccion[no_interior]" 
+                           value="{{ old('direccion.no_interior', $datos['direccion']['no_interior'] ?? '') }}">
+                    @error('direccion.no_interior')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="espacio_estudio">¿Cuentas con un espacio adecuado para estudiar en casa? <span class="required">*</span></label>
-            <select name="espacio_estudio" id="espacio_estudio" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <div class="col-md-4">
+                    <label for="colonia" class="form-label">Colonia*</label>
+                    <input type="text" class="form-control @error('direccion.colonia') is-invalid @enderror" id="colonia" name="direccion[colonia]" 
+                           value="{{ old('direccion.colonia', $datos['direccion']['colonia'] ?? '') }}" required>
+                    @error('direccion.colonia')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <!-- Trabajo y Finanzas -->
-        <div class="form-group">
-            <label for="trabaja">¿Trabajas normalmente? <span class="required">*</span></label>
-            <select name="trabaja" id="trabaja" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <div class="col-md-4">
+                    <label for="cp" class="form-label">Código Postal*</label>
+                    <input type="text" class="form-control @error('direccion.cp') is-invalid @enderror" id="cp" name="direccion[cp]" 
+                           value="{{ old('direccion.cp', $datos['direccion']['cp'] ?? '') }}" required>
+                    @error('direccion.cp')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="horas_trabajo">¿Cuántas horas trabajas a la semana?</label>
-            <input type="number" name="horas_trabajo" id="horas_trabajo">
-        </div>
+                <div class="col-md-4">
+                    <label for="municipio" class="form-label">Municipio*</label>
+                    <input type="text" class="form-control @error('direccion.municipio') is-invalid @enderror" id="municipio" name="direccion[municipio]" 
+                           value="{{ old('direccion.municipio', $datos['direccion']['municipio'] ?? '') }}" required>
+                    @error('direccion.municipio')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="sueldo_suficiente">¿Tu sueldo es suficiente para cubrir tus gastos escolares? <span class="required">*</span></label>
-            <select name="sueldo_suficiente" id="sueldo_suficiente" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <!-- Referencias -->
+                <div class="col-md-6">
+                    <label for="referencia_1" class="form-label">Referencia de Domicilio 1</label>
+                    <input type="text" class="form-control @error('referencias_domicilio.0') is-invalid @enderror" id="referencia_1" name="referencias_domicilio[]" 
+                           value="{{ old('referencias_domicilio.0', $datos['referencias_domicilio'][0] ?? '') }}">
+                    @error('referencias_domicilio.0')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label for="recibe_beca">¿Recibes algún tipo de beca? <span class="required">*</span></label>
-            <select name="recibe_beca" id="recibe_beca" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <div class="col-md-6">
+                    <label for="referencia_2" class="form-label">Referencia de Domicilio 2</label>
+                    <input type="text" class="form-control @error('referencias_domicilio.1') is-invalid @enderror" id="referencia_2" name="referencias_domicilio[]" 
+                           value="{{ old('referencias_domicilio.1', $datos['referencias_domicilio'][1] ?? '') }}">
+                    @error('referencias_domicilio.1')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <!-- Abandono Escolar -->
-        <div class="form-group">
-            <label for="considerado_abandono">¿Alguna vez has considerado dejar la escuela? <span class="required">*</span></label>
-            <select name="considerado_abandono" id="considerado_abandono" required>
-                <option value="Sí">Sí</option>
-                <option value="No">No</option>
-            </select>
-        </div>
+                <!-- Servicios básicos -->
+                <div class="col-12 mt-3">
+                    <label class="form-label">Servicios con los que cuenta:</label>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="servicio_luz" name="servicios[luz]" value="1" 
+                                    {{ old('servicios.luz', $datos['servicios']['luz'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="servicio_luz">Luz eléctrica</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="servicio_agua" name="servicios[agua]" value="1" 
+                                    {{ old('servicios.agua', $datos['servicios']['agua'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="servicio_agua">Agua potable</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="servicio_internet" name="servicios[internet]" value="1" 
+                                    {{ old('servicios.internet', $datos['servicios']['internet'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="servicio_internet">Internet</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="servicio_computadora" name="servicios[computadora]" value="1" 
+                                    {{ old('servicios.computadora', $datos['servicios']['computadora'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="servicio_computadora">Computadora</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="razon_abandono">¿Cuál es la razón?</label>
-            <textarea name="razon_abandono" id="razon_abandono" rows="4"></textarea>
-        </div>
+                <!-- Condiciones de vivienda -->
+                <div class="col-md-6 mt-3">
+                    <label for="tipo_vivienda" class="form-label">Tipo de vivienda*</label>
+                    <select class="form-select @error('vivienda.tipo') is-invalid @enderror" id="tipo_vivienda" name="vivienda[tipo]" required>
+                        <option value="Propia" {{ old('vivienda.tipo', $datos['vivienda']['tipo'] ?? '') == 'Propia' ? 'selected' : '' }}>Propia</option>
+                        <option value="Rentada" {{ old('vivienda.tipo', $datos['vivienda']['tipo'] ?? '') == 'Rentada' ? 'selected' : '' }}>Rentada</option>
+                        <option value="Prestada" {{ old('vivienda.tipo', $datos['vivienda']['tipo'] ?? '') == 'Prestada' ? 'selected' : '' }}>Prestada</option>
+                    </select>
+                    @error('vivienda.tipo')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <label for="id_grupo">Grupo:</label>
-    <select name="id_grupo" required>
-        <option value="">Selecciona un grupo</option>
-        @foreach($grupos as $grupo)
-            <option value="{{ $grupo->_id }}">{{ $grupo->nombre }}</option>
-        @endforeach
-    </select>
+                <div class="col-md-6 mt-3" id="renta-group" style="display:none;">
+                    <label for="monto_renta" class="form-label">Monto de renta mensual (MXN)</label>
+                    <input type="number" class="form-control @error('vivienda.monto_renta') is-invalid @enderror" id="monto_renta" name="vivienda[monto_renta]" min="0" 
+                           value="{{ old('vivienda.monto_renta', $datos['vivienda']['monto_renta'] ?? '') }}">
+                    @error('vivienda.monto_renta')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
 
-    <label for="id_carrera">Carrera:</label>
-    <select name="id_carrera" required>
-        <option value="">Selecciona una carrera</option>
-        @foreach($carreras as $carrera)
-            <option value="{{ $carrera->_id }}">{{ $carrera->nombre }}</option>
-        @endforeach
-    </select>
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-prev" data-prev="1">Anterior</button>
+                <button type="button" class="btn btn-next" data-next="3">Siguiente</button>
+            </div>
+        </fieldset>
 
+        <!-- ========================== -->
+        <!-- SECCIÓN 3: SITUACIÓN FAMILIAR Y SALUD -->
+        <!-- ========================== -->
+        <fieldset class="form-section" data-section="3" style="display:none;">
+            <legend class="fw-bold">3. Situación Familiar y Salud</legend>
+            
+            <div class="row g-3">
+                <!-- Situación Familiar -->
+                <div class="col-md-4">
+                    <label for="estado_civil" class="form-label">Estado Civil*</label>
+                    <select class="form-select @error('estado_civil') is-invalid @enderror" id="estado_civil" name="estado_civil" required>
+                        <option value="Soltero" {{ old('estado_civil', $datos['estado_civil'] ?? '') == 'Soltero' ? 'selected' : '' }}>Soltero</option>
+                        <option value="Casado" {{ old('estado_civil', $datos['estado_civil'] ?? '') == 'Casado' ? 'selected' : '' }}>Casado</option>
+                        <option value="Divorciado" {{ old('estado_civil', $datos['estado_civil'] ?? '') == 'Divorciado' ? 'selected' : '' }}>Divorciado</option>
+                        <option value="Viudo" {{ old('estado_civil', $datos['estado_civil'] ?? '') == 'Viudo' ? 'selected' : '' }}>Viudo</option>
+                    </select>
+                    @error('estado_civil')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <button type="submit">Enviar</button>
+                <div class="col-md-4">
+                    <label for="numero_hijos" class="form-label">Número de Hijos</label>
+                    <input type="number" class="form-control @error('numero_hijos') is-invalid @enderror" id="numero_hijos" name="numero_hijos" min="0" 
+                           value="{{ old('numero_hijos', $datos['numero_hijos'] ?? 0) }}">
+                    @error('numero_hijos')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Agrega este div contenedor alrededor del campo embarazada -->
+<div id="embarazada-group">
+    <div class="col-md-4">
+        <label for="embarazada" class="form-label">¿Está embarazada?*</label>
+        <select class="form-select @error('salud.embarazada') is-invalid @enderror" 
+                id="embarazada" name="salud[embarazada]" required>
+            <option value="No" {{ old('salud.embarazada', $datos['salud']['embarazada'] ?? '') == 'No' ? 'selected' : '' }}>No</option>
+            <option value="Sí" {{ old('salud.embarazada', $datos['salud']['embarazada'] ?? '') == 'Sí' ? 'selected' : '' }}>Sí</option>
+        </select>
+        @error('salud.embarazada')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+                <!-- Detalles de embarazo (condicional) -->
+                <div class="col-md-12" id="embarazo-details" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="meses_embarazo" class="form-label">Meses de embarazo</label>
+                            <input type="number" class="form-control @error('salud.meses_embarazo') is-invalid @enderror" id="meses_embarazo" name="salud[meses_embarazo]" min="1" max="9" 
+                                   value="{{ old('salud.meses_embarazo', $datos['salud']['meses_embarazo'] ?? '') }}">
+                            @error('salud.meses_embarazo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-8">
+                            <label for="atencion_embarazo" class="form-label">¿Recibe atención médica para el embarazo?</label>
+                            <select class="form-select @error('salud.atencion_embarazo') is-invalid @enderror" id="atencion_embarazo" name="salud[atencion_embarazo]">
+                                <option value="Sí" {{ old('salud.atencion_embarazo', $datos['salud']['atencion_embarazo'] ?? '') == 'Sí' ? 'selected' : '' }}>Sí</option>
+                                <option value="No" {{ old('salud.atencion_embarazo', $datos['salud']['atencion_embarazo'] ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                            </select>
+                            @error('salud.atencion_embarazo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contactos de Emergencia -->
+                <div class="col-md-4">
+                    <label for="contacto_emergencia_1_nombre" class="form-label">Contacto Emergencia 1 (Nombre)*</label>
+                    <input type="text" class="form-control @error('contacto_emergencia_1.nombre') is-invalid @enderror" id="contacto_emergencia_1_nombre" name="contacto_emergencia_1[nombre]" 
+                           value="{{ old('contacto_emergencia_1.nombre', $datos['contacto_emergencia_1']['nombre'] ?? '') }}" required>
+                    @error('contacto_emergencia_1.nombre')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="contacto_emergencia_1_telefono" class="form-label">Teléfono*</label>
+                    <input type="tel" class="form-control @error('contacto_emergencia_1.telefono') is-invalid @enderror" id="contacto_emergencia_1_telefono" name="contacto_emergencia_1[telefono]" 
+                           value="{{ old('contacto_emergencia_1.telefono', $datos['contacto_emergencia_1']['telefono'] ?? '') }}" required>
+                    @error('contacto_emergencia_1.telefono')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="contacto_emergencia_1_relacion" class="form-label">Relación*</label>
+                    <input type="text" class="form-control @error('contacto_emergencia_1.relacion') is-invalid @enderror" id="contacto_emergencia_1_relacion" name="contacto_emergencia_1[relacion]" 
+                           value="{{ old('contacto_emergencia_1.relacion', $datos['contacto_emergencia_1']['relacion'] ?? '') }}" required>
+                    @error('contacto_emergencia_1.relacion')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Salud -->
+                <div class="col-md-6">
+                    <label for="padecimiento_cronico" class="form-label">¿Tiene padecimientos crónicos?*</label>
+                    <select class="form-select @error('condiciones_salud.padecimiento_cronico') is-invalid @enderror" id="padecimiento_cronico" name="condiciones_salud[padecimiento_cronico]" required>
+                        <option value="No" {{ old('condiciones_salud.padecimiento_cronico', $datos['condiciones_salud']['padecimiento_cronico'] ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                        <option value="Sí" {{ old('condiciones_salud.padecimiento_cronico', $datos['condiciones_salud']['padecimiento_cronico'] ?? '') == 'Sí' ? 'selected' : '' }}>Sí</option>
+                    </select>
+                    @error('condiciones_salud.padecimiento_cronico')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6" id="padecimiento-details" style="display:none;">
+                    <label for="nombre_padecimiento" class="form-label">Especifique</label>
+                    <input type="text" class="form-control @error('condiciones_salud.nombre_padecimiento') is-invalid @enderror" id="nombre_padecimiento" name="condiciones_salud[nombre_padecimiento]" 
+                           value="{{ old('condiciones_salud.nombre_padecimiento', $datos['condiciones_salud']['nombre_padecimiento'] ?? '') }}">
+                    @error('condiciones_salud.nombre_padecimiento')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Salud mental -->
+                <div class="col-md-6 mt-3">
+                    <label for="atencion_psicologica" class="form-label">¿Ha recibido atención psicológica?*</label>
+                    <select class="form-select @error('condiciones_salud.atencion_psicologica') is-invalid @enderror" id="atencion_psicologica" name="condiciones_salud[atencion_psicologica]" required>
+                        <option value="No" {{ old('condiciones_salud.atencion_psicologica', $datos['condiciones_salud']['atencion_psicologica'] ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                        <option value="Sí" {{ old('condiciones_salud.atencion_psicologica', $datos['condiciones_salud']['atencion_psicologica'] ?? '') == 'Sí' ? 'selected' : '' }}>Sí</option>
+                    </select>
+                    @error('condiciones_salud.atencion_psicologica')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6 mt-3" id="psicologica-details" style="display:none;">
+                    <label for="motivo_atencion" class="form-label">Motivo de atención</label>
+                    <input type="text" class="form-control @error('condiciones_salud.motivo_atencion') is-invalid @enderror" id="motivo_atencion" name="condiciones_salud[motivo_atencion]" 
+                           value="{{ old('condiciones_salud.motivo_atencion', $datos['condiciones_salud']['motivo_atencion'] ?? '') }}">
+                    @error('condiciones_salud.motivo_atencion')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Hábitos de salud -->
+                <div class="col-md-6">
+                    <label for="horas_sueno" class="form-label">Horas de sueño diarias*</label>
+                    <select class="form-select @error('condiciones_salud.horas_sueno') is-invalid @enderror" id="horas_sueno" name="condiciones_salud[horas_sueno]" required>
+                        <option value="<5" {{ old('condiciones_salud.horas_sueno', $datos['condiciones_salud']['horas_sueno'] ?? '') == '<5' ? 'selected' : '' }}>Menos de 5</option>
+                        <option value="5-6" {{ old('condiciones_salud.horas_sueno', $datos['condiciones_salud']['horas_sueno'] ?? '') == '5-6' ? 'selected' : '' }}>5-6 horas</option>
+                        <option value="7-8" {{ old('condiciones_salud.horas_sueno', $datos['condiciones_salud']['horas_sueno'] ?? '') == '7-8' ? 'selected' : '' }} selected>7-8 horas</option>
+                        <option value=">8" {{ old('condiciones_salud.horas_sueno', $datos['condiciones_salud']['horas_sueno'] ?? '') == '>8' ? 'selected' : '' }}>Más de 8</option>
+                    </select>
+                    @error('condiciones_salud.horas_sueno')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
+                    <label for="alimentacion" class="form-label">¿Cómo califica su alimentación?*</label>
+                    <select class="form-select @error('condiciones_salud.alimentacion') is-invalid @enderror" id="alimentacion" name="condiciones_salud[alimentacion]" required>
+                        <option value="Mala" {{ old('condiciones_salud.alimentacion', $datos['condiciones_salud']['alimentacion'] ?? '') == 'Mala' ? 'selected' : '' }}>Mala</option>
+                        <option value="Regular" {{ old('condiciones_salud.alimentacion', $datos['condiciones_salud']['alimentacion'] ?? '') == 'Regular' ? 'selected' : '' }}>Regular</option>
+                        <option value="Buena" {{ old('condiciones_salud.alimentacion', $datos['condiciones_salud']['alimentacion'] ?? '') == 'Buena' ? 'selected' : '' }}>Buena</option>
+                        <option value="Excelente" {{ old('condiciones_salud.alimentacion', $datos['condiciones_salud']['alimentacion'] ?? '') == 'Excelente' ? 'selected' : '' }}>Excelente</option>
+                    </select>
+                    @error('condiciones_salud.alimentacion')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-prev" data-prev="2">Anterior</button>
+                <button type="button" class="btn btn-next" data-next="4">Siguiente</button>
+            </div>
+        </fieldset>
+
+        <!-- ========================== -->
+        <!-- SECCIÓN 4: SITUACIÓN ECONÓMICA -->
+        <!-- ========================== -->
+        <fieldset class="form-section" data-section="4" style="display:none;">
+            <legend class="fw-bold">4. Situación Económica</legend>
+            
+            <div class="row g-3">
+                <!-- Trabajo -->
+                <div class="col-md-6">
+                    <label for="trabaja" class="form-label">¿Trabaja actualmente?*</label>
+                    <select class="form-select @error('aspectos_socioeconomicos.trabaja') is-invalid @enderror" id="trabaja" name="aspectos_socioeconomicos[trabaja]" required>
+                        <option value="No" {{ old('aspectos_socioeconomicos.trabaja', $datos['aspectos_socioeconomicos']['trabaja'] ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                        <option value="Sí" {{ old('aspectos_socioeconomicos.trabaja', $datos['aspectos_socioeconomicos']['trabaja'] ?? '') == 'Sí' ? 'selected' : '' }}>Sí</option>
+                    </select>
+                    @error('aspectos_socioeconomicos.trabaja')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Sección para quienes trabajan -->
+                <div id="trabaja-group" style="display:none;">
+                    <div class="col-md-6">
+                        <label for="horas_trabajo" class="form-label">Horas semanales de trabajo*</label>
+                        <input type="number" class="form-control @error('aspectos_socioeconomicos.horas_trabajo') is-invalid @enderror" id="horas_trabajo" name="aspectos_socioeconomicos[horas_trabajo]" min="1" max="80" 
+                               value="{{ old('aspectos_socioeconomicos.horas_trabajo', $datos['aspectos_socioeconomicos']['horas_trabajo'] ?? '') }}" required>
+                        @error('aspectos_socioeconomicos.horas_trabajo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="ingreso_mensual" class="form-label">Ingreso mensual (MXN)*</label>
+                        <input type="number" class="form-control @error('aspectos_socioeconomicos.ingreso_mensual') is-invalid @enderror" id="ingreso_mensual" name="aspectos_socioeconomicos[ingreso_mensual]" min="0" 
+                               value="{{ old('aspectos_socioeconomicos.ingreso_mensual', $datos['aspectos_socioeconomicos']['ingreso_mensual'] ?? '') }}" required>
+                        @error('aspectos_socioeconomicos.ingreso_mensual')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="nombre_trabajo" class="form-label">Nombre del trabajo</label>
+                        <input type="text" class="form-control @error('aspectos_socioeconomicos.nombre_trabajo') is-invalid @enderror" id="nombre_trabajo" name="aspectos_socioeconomicos[nombre_trabajo]" 
+                               value="{{ old('aspectos_socioeconomicos.nombre_trabajo', $datos['aspectos_socioeconomicos']['nombre_trabajo'] ?? '') }}">
+                        @error('aspectos_socioeconomicos.nombre_trabajo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="dias_trabajo" class="form-label">Días de trabajo</label>
+                        <input type="text" class="form-control @error('aspectos_socioeconomicos.dias_trabajo') is-invalid @enderror" id="dias_trabajo" name="aspectos_socioeconomicos[dias_trabajo]" 
+                               value="{{ old('aspectos_socioeconomicos.dias_trabajo', $datos['aspectos_socioeconomicos']['dias_trabajo'] ?? '') }}">
+                        @error('aspectos_socioeconomicos.dias_trabajo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Sección para quienes NO trabajan -->
+                <div id="no-trabaja-group" style="display:none;">
+                    <div class="col-md-6">
+                        <label for="aporte_familiar" class="form-label">¿Quién aporta económicamente?*</label>
+                        <select class="form-select @error('aspectos_socioeconomicos.aporte_familiar') is-invalid @enderror" id="aporte_familiar" name="aspectos_socioeconomicos[aporte_familiar]">
+                            <option value="Padres" {{ old('aspectos_socioeconomicos.aporte_familiar', $datos['aspectos_socioeconomicos']['aporte_familiar'] ?? '') == 'Padres' ? 'selected' : '' }}>Padres</option>
+                            <option value="Pareja" {{ old('aspectos_socioeconomicos.aporte_familiar', $datos['aspectos_socioeconomicos']['aporte_familiar'] ?? '') == 'Pareja' ? 'selected' : '' }}>Pareja</option>
+                            <option value="Familiares" {{ old('aspectos_socioeconomicos.aporte_familiar', $datos['aspectos_socioeconomicos']['aporte_familiar'] ?? '') == 'Familiares' ? 'selected' : '' }}>Otros familiares</option>
+                            <option value="Beca" {{ old('aspectos_socioeconomicos.aporte_familiar', $datos['aspectos_socioeconomicos']['aporte_familiar'] ?? '') == 'Beca' ? 'selected' : '' }}>Beca</option>
+                            <option value="Otro" {{ old('aspectos_socioeconomicos.aporte_familiar', $datos['aspectos_socioeconomicos']['aporte_familiar'] ?? '') == 'Otro' ? 'selected' : '' }}>Otro</option>
+                        </select>
+                        @error('aspectos_socioeconomicos.aporte_familiar')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="monto_aporte" class="form-label">Monto mensual de aporte (MXN)*</label>
+                        <input type="number" class="form-control @error('aspectos_socioeconomicos.monto_aporte') is-invalid @enderror" id="monto_aporte" name="aspectos_socioeconomicos[monto_aporte]" min="0" 
+                               value="{{ old('aspectos_socioeconomicos.monto_aporte', $datos['aspectos_socioeconomicos']['monto_aporte'] ?? '') }}">
+                        @error('aspectos_socioeconomicos.monto_aporte')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="otro_aporte" class="form-label">Descripción del aporte</label>
+                        <textarea class="form-control @error('aspectos_socioeconomicos.otro_aporte') is-invalid @enderror" id="otro_aporte" name="aspectos_socioeconomicos[otro_aporte]">{{ old('aspectos_socioeconomicos.otro_aporte', $datos['aspectos_socioeconomicos']['otro_aporte'] ?? '') }}</textarea>
+                        @error('aspectos_socioeconomicos.otro_aporte')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Gastos familiares -->
+                <div class="col-md-6">
+                    <label for="ingreso_familiar" class="form-label">Ingreso familiar total (MXN)</label>
+                    <input type="number" class="form-control @error('aportantes_gasto_familiar.ingreso_familiar') is-invalid @enderror" id="ingreso_familiar" name="aportantes_gasto_familiar[ingreso_familiar]" min="0" 
+                           value="{{ old('aportantes_gasto_familiar.ingreso_familiar', $datos['aportantes_gasto_familiar']['ingreso_familiar'] ?? '') }}">
+                    @error('aportantes_gasto_familiar.ingreso_familiar')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
+                    <label for="gasto_mensual" class="form-label">Gasto familiar mensual (MXN)</label>
+                    <input type="number" class="form-control @error('aportantes_gasto_familiar.gasto_mensual') is-invalid @enderror" id="gasto_mensual" name="aportantes_gasto_familiar[gasto_mensual]" min="0" 
+                           value="{{ old('aportantes_gasto_familiar.gasto_mensual', $datos['aportantes_gasto_familiar']['gasto_mensual'] ?? '') }}">
+                    @error('aportantes_gasto_familiar.gasto_mensual')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Aportantes al gasto familiar -->
+                <div class="col-12">
+                    <label class="form-label">¿Quiénes aportan al gasto familiar?</label>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aporte_padre" name="aportantes_gasto_familiar[padre]" value="1" 
+                                    {{ old('aportantes_gasto_familiar.padre', $datos['aportantes_gasto_familiar']['padre'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="aporte_padre">Padre</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aporte_madre" name="aportantes_gasto_familiar[madre]" value="1" 
+                                    {{ old('aportantes_gasto_familiar.madre', $datos['aportantes_gasto_familiar']['madre'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="aporte_madre">Madre</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aporte_hermanos" name="aportantes_gasto_familiar[hermanos]" value="1" 
+                                    {{ old('aportantes_gasto_familiar.hermanos', $datos['aportantes_gasto_familiar']['hermanos'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="aporte_hermanos">Hermanos</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aporte_abuelos" name="aportantes_gasto_familiar[abuelos]" value="1" 
+                                    {{ old('aportantes_gasto_familiar.abuelos', $datos['aportantes_gasto_familiar']['abuelos'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="aporte_abuelos">Abuelos</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aporte_pareja" name="aportantes_gasto_familiar[pareja]" value="1" 
+                                    {{ old('aportantes_gasto_familiar.pareja', $datos['aportantes_gasto_familiar']['pareja'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="aporte_pareja">Pareja</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="aporte_otro" name="aportantes_gasto_familiar[otro]" value="1" 
+                                    {{ old('aportantes_gasto_familiar.otro', $datos['aportantes_gasto_familiar']['otro'] ?? false) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="aporte_otro">Otro</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-prev" data-prev="3">Anterior</button>
+                <button type="button" class="btn btn-next" data-next="5">Siguiente</button>
+            </div>
+        </fieldset>
+
+        <!-- ========================== -->
+        <!-- SECCIÓN 5: RENDIMIENTO ACADÉMICO -->
+        <!-- ========================== -->
+        <fieldset class="form-section" data-section="5" style="display:none;">
+            <legend class="fw-bold">5. Rendimiento Académico</legend>
+            
+            <div class="row g-3">
+                <!-- Historial académico -->
+                <div class="col-md-4">
+                    <label for="promedio_previo" class="form-label">Promedio anterior (0-10)*</label>
+                    <input type="number" class="form-control @error('analisis_academico.promedio_previo') is-invalid @enderror" id="promedio_previo" name="analisis_academico[promedio_previo]" step="0.1" min="0" max="10" 
+                           value="{{ old('analisis_academico.promedio_previo', $datos['analisis_academico']['promedio_previo'] ?? '') }}" required>
+                    @error('analisis_academico.promedio_previo')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="materias_reprobadas" class="form-label">Materias reprobadas (último semestre)*</label>
+                    <input type="number" class="form-control @error('analisis_academico.materias_reprobadas') is-invalid @enderror" id="materias_reprobadas" name="analisis_academico[materias_reprobadas]" min="0" 
+                           value="{{ old('analisis_academico.materias_reprobadas', $datos['analisis_academico']['materias_reprobadas'] ?? '') }}" required>
+                    @error('analisis_academico.materias_reprobadas')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="repitio_anio" class="form-label">¿Repitió algún año?*</label>
+                    <select class="form-select @error('analisis_academico.repitio_anio') is-invalid @enderror" id="repitio_anio" name="analisis_academico[repitio_anio]" required>
+                        <option value="No" {{ old('analisis_academico.repitio_anio', $datos['analisis_academico']['repitio_anio'] ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                        <option value="Sí" {{ old('analisis_academico.repitio_anio', $datos['analisis_academico']['repitio_anio'] ?? '') == 'Sí' ? 'selected' : '' }}>Sí</option>
+                    </select>
+                    @error('analisis_academico.repitio_anio')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Razón de repetición (condicional) -->
+                <div class="col-md-12" id="razon-repitio-group" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="razon_repitio" class="form-label">Razón principal por la que repitió*</label>
+                            <select class="form-select @error('analisis_academico.razon_repitio') is-invalid @enderror" id="razon_repitio" name="analisis_academico[razon_repitio]">
+                                <option value="Problemas económicos" {{ old('analisis_academico.razon_repitio', $datos['analisis_academico']['razon_repitio'] ?? '') == 'Problemas económicos' ? 'selected' : '' }}>Problemas económicos</option>
+                                <option value="Problemas de salud" {{ old('analisis_academico.razon_repitio', $datos['analisis_academico']['razon_repitio'] ?? '') == 'Problemas de salud' ? 'selected' : '' }}>Problemas de salud</option>
+                                <option value="Dificultad académica" {{ old('analisis_academico.razon_repitio', $datos['analisis_academico']['razon_repitio'] ?? '') == 'Dificultad académica' ? 'selected' : '' }}>Dificultad académica</option>
+                                <option value="Problemas personales" {{ old('analisis_academico.razon_repitio', $datos['analisis_academico']['razon_repitio'] ?? '') == 'Problemas personales' ? 'selected' : '' }}>Problemas personales</option>
+                                <option value="Trabajo" {{ old('analisis_academico.razon_repitio', $datos['analisis_academico']['razon_repitio'] ?? '') == 'Trabajo' ? 'selected' : '' }}>Trabajo</option>
+                                <option value="Otro" {{ old('analisis_academico.razon_repitio', $datos['analisis_academico']['razon_repitio'] ?? '') == 'Otro' ? 'selected' : '' }}>Otro</option>
+                            </select>
+                            @error('analisis_academico.razon_repitio')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="detalle_repitio" class="form-label">Detalle (opcional)</label>
+                            <input type="text" class="form-control @error('analisis_academico.detalle_repitio') is-invalid @enderror" id="detalle_repitio" name="analisis_academico[detalle_repitio]" 
+                                   value="{{ old('analisis_academico.detalle_repitio', $datos['analisis_academico']['detalle_repitio'] ?? '') }}">
+                            @error('analisis_academico.detalle_repitio')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hábitos de estudio -->
+                <div class="col-md-6">
+                    <label for="horas_estudio_diario" class="form-label">Horas diarias de estudio*</label>
+                    <select class="form-select @error('analisis_academico.horas_estudio_diario') is-invalid @enderror" id="horas_estudio_diario" name="analisis_academico[horas_estudio_diario]" required>
+                        <option value="<1" {{ old('analisis_academico.horas_estudio_diario', $datos['analisis_academico']['horas_estudio_diario'] ?? '') == '<1' ? 'selected' : '' }}>Menos de 1 hora</option>
+                        <option value="1-2" {{ old('analisis_academico.horas_estudio_diario', $datos['analisis_academico']['horas_estudio_diario'] ?? '') == '1-2' ? 'selected' : '' }}>1-2 horas</option>
+                        <option value="3-4" {{ old('analisis_academico.horas_estudio_diario', $datos['analisis_academico']['horas_estudio_diario'] ?? '') == '3-4' ? 'selected' : '' }}>3-4 horas</option>
+                        <option value=">4" {{ old('analisis_academico.horas_estudio_diario', $datos['analisis_academico']['horas_estudio_diario'] ?? '') == '>4' ? 'selected' : '' }}>Más de 4 horas</option>
+                    </select>
+                    @error('analisis_academico.horas_estudio_diario')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
+                    <label for="apoyo_academico" class="form-label">¿Recibe apoyo académico externo?*</label>
+                    <select class="form-select @error('analisis_academico.apoyo_academico') is-invalid @enderror" id="apoyo_academico" name="analisis_academico[apoyo_academico]" required>
+                        <option value="No" {{ old('analisis_academico.apoyo_academico', $datos['analisis_academico']['apoyo_academico'] ?? '') == 'No' ? 'selected' : '' }}>No</option>
+                        <option value="Sí" {{ old('analisis_academico.apoyo_academico', $datos['analisis_academico']['apoyo_academico'] ?? '') == 'Sí' ? 'selected' : '' }}>Sí</option>
+                    </select>
+                    @error('analisis_academico.apoyo_academico')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Detalles de apoyo académico (condicional) -->
+                <div class="col-md-12" id="apoyo-details" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="tipo_apoyo" class="form-label">Tipo de apoyo*</label>
+                            <select class="form-select @error('analisis_academico.tipo_apoyo') is-invalid @enderror" id="tipo_apoyo" name="analisis_academico[tipo_apoyo]">
+                                <option value="Tutorías" {{ old('analisis_academico.tipo_apoyo', $datos['analisis_academico']['tipo_apoyo'] ?? '') == 'Tutorías' ? 'selected' : '' }}>Tutorías</option>
+                                <option value="Cursos" {{ old('analisis_academico.tipo_apoyo', $datos['analisis_academico']['tipo_apoyo'] ?? '') == 'Cursos' ? 'selected' : '' }}>Cursos</option>
+                                <option value="Asesorías" {{ old('analisis_academico.tipo_apoyo', $datos['analisis_academico']['tipo_apoyo'] ?? '') == 'Asesorías' ? 'selected' : '' }}>Asesorías</option>
+                                <option value="Otro" {{ old('analisis_academico.tipo_apoyo', $datos['analisis_academico']['tipo_apoyo'] ?? '') == 'Otro' ? 'selected' : '' }}>Otro</option>
+                            </select>
+                            @error('analisis_academico.tipo_apoyo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <label for="frecuencia_apoyo" class="form-label">Frecuencia*</label>
+                            <select class="form-select @error('analisis_academico.frecuencia_apoyo') is-invalid @enderror" id="frecuencia_apoyo" name="analisis_academico[frecuencia_apoyo]">
+                                <option value="Diario" {{ old('analisis_academico.frecuencia_apoyo', $datos['analisis_academico']['frecuencia_apoyo'] ?? '') == 'Diario' ? 'selected' : '' }}>Diario</option>
+                                <option value="Semanal" {{ old('analisis_academico.frecuencia_apoyo', $datos['analisis_academico']['frecuencia_apoyo'] ?? '') == 'Semanal' ? 'selected' : '' }}>Semanal</option>
+                                <option value="Quincenal" {{ old('analisis_academico.frecuencia_apoyo', $datos['analisis_academico']['frecuencia_apoyo'] ?? '') == 'Quincenal' ? 'selected' : '' }}>Quincenal</option>
+                                <option value="Mensual" {{ old('analisis_academico.frecuencia_apoyo', $datos['analisis_academico']['frecuencia_apoyo'] ?? '') == 'Mensual' ? 'selected' : '' }}>Mensual</option>
+                            </select>
+                            @error('analisis_academico.frecuencia_apoyo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivación -->
+                <div class="col-12">
+                    <label for="motivacion" class="form-label">¿Cómo calificaría su motivación para estudiar? (1-5)*</label>
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">1 (Baja)</span>
+                        <input type="range" class="form-range @error('analisis_academico.motivacion') is-invalid @enderror" id="motivacion" name="analisis_academico[motivacion]" min="1" max="5" 
+                               value="{{ old('analisis_academico.motivacion', $datos['analisis_academico']['motivacion'] ?? 3) }}" required>
+                        <span class="ms-2">5 (Alta)</span>
+                        <span id="motivacion-value" class="badge bg-primary ms-3">{{ old('analisis_academico.motivacion', $datos['analisis_academico']['motivacion'] ?? 3) }}</span>
+                    </div>
+                    @error('analisis_academico.motivacion')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Expectativas -->
+                <div class="col-md-6">
+                    <label for="dificultad_estudio" class="form-label">Principales dificultades para estudiar*</label>
+                    <select class="form-select @error('analisis_academico.dificultad_estudio') is-invalid @enderror" id="dificultad_estudio" name="analisis_academico[dificultad_estudio]" required>
+                        <option value="Tiempo" {{ old('analisis_academico.dificultad_estudio', $datos['analisis_academico']['dificultad_estudio'] ?? '') == 'Tiempo' ? 'selected' : '' }}>Falta de tiempo</option>
+                        <option value="Dinero" {{ old('analisis_academico.dificultad_estudio', $datos['analisis_academico']['dificultad_estudio'] ?? '') == 'Dinero' ? 'selected' : '' }}>Problemas económicos</option>
+                        <option value="Salud" {{ old('analisis_academico.dificultad_estudio', $datos['analisis_academico']['dificultad_estudio'] ?? '') == 'Salud' ? 'selected' : '' }}>Problemas de salud</option>
+                        <option value="Familia" {{ old('analisis_academico.dificultad_estudio', $datos['analisis_academico']['dificultad_estudio'] ?? '') == 'Familia' ? 'selected' : '' }}>Responsabilidades familiares</option>
+                        <option value="Académica" {{ old('analisis_academico.dificultad_estudio', $datos['analisis_academico']['dificultad_estudio'] ?? '') == 'Académica' ? 'selected' : '' }}>Dificultad académica</option>
+                    </select>
+                    @error('analisis_academico.dificultad_estudio')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6">
+                    <label for="expectativa_terminar" class="form-label">¿Qué tan seguro está de terminar sus estudios?*</label>
+                    <select class="form-select @error('analisis_academico.expectativa_terminar') is-invalid @enderror" id="expectativa_terminar" name="analisis_academico[expectativa_terminar]" required>
+                        <option value="Muy seguro" {{ old('analisis_academico.expectativa_terminar', $datos['analisis_academico']['expectativa_terminar'] ?? '') == 'Muy seguro' ? 'selected' : '' }}>Muy seguro</option>
+                        <option value="Seguro" {{ old('analisis_academico.expectativa_terminar', $datos['analisis_academico']['expectativa_terminar'] ?? '') == 'Seguro' ? 'selected' : '' }}>Seguro</option>
+                        <option value="Poco seguro" {{ old('analisis_academico.expectativa_terminar', $datos['analisis_academico']['expectativa_terminar'] ?? '') == 'Poco seguro' ? 'selected' : '' }}>Poco seguro</option>
+                        <option value="No seguro" {{ old('analisis_academico.expectativa_terminar', $datos['analisis_academico']['expectativa_terminar'] ?? '') == 'No seguro' ? 'selected' : '' }}>No estoy seguro</option>
+                    </select>
+                    @error('analisis_academico.expectativa_terminar')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Comentarios adicionales -->
+                <div class="col-12">
+                    <label for="comentarios" class="form-label">Comentarios adicionales</label>
+                    <textarea class="form-control @error('analisis_academico.comentarios') is-invalid @enderror" id="comentarios" name="analisis_academico[comentarios]" rows="3">{{ old('analisis_academico.comentarios', $datos['analisis_academico']['comentarios'] ?? '') }}</textarea>
+                    @error('analisis_academico.comentarios')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-prev" data-prev="4">Anterior</button>
+                <button type="submit" class="btn btn-success">Enviar Formulario</button>
+            </div>
+        </fieldset>
     </form>
-</body>
-</html>
+</div>
+
+<style>
+    .form-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .btn-next, .btn-prev {
+        min-width: 120px;
+    }
+    .form-range {
+        width: 80%;
+    }
+    .conditional-group {
+        background: #e9ecef;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-top: 1rem;
+    }
+    .alert {
+        margin-top: 1rem;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // =============================================
+    // Cargar grupos según carrera seleccionada
+    // =============================================
+    const carreraSelect = document.getElementById('id_carrera');
+    const grupoSelect = document.getElementById('id_grupo');
+    const oldGrupoId = "{{ old('id_grupo', $datos['id_grupo'] ?? '') }}";
+
+    // Función para cargar grupos
+    function cargarGrupos(carreraId) {
+        if (!carreraId) {
+            grupoSelect.innerHTML = '<option value="">Seleccione una carrera primero</option>';
+            return;
+        }
+
+        grupoSelect.innerHTML = '<option value="">Cargando grupos...</option>';
+
+        fetch(`/carrera/${carreraId}/grupos`)
+            .then(response => response.json())
+            .then(data => {
+                grupoSelect.innerHTML = '<option value="">Seleccione...</option>';
+                data.forEach(grupo => {
+                    const option = document.createElement('option');
+                    option.value = grupo._id;
+                    option.textContent = grupo.nombre;
+
+                    // Comparar como strings para asegurar coincidencia
+                    if (String(grupo._id) === String(oldGrupoId)) {
+                        option.selected = true;
+                    }
+
+                    grupoSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                grupoSelect.innerHTML = '<option value="">Error al cargar grupos</option>';
+            });
+    }
+
+    // Cargar grupos al cambiar carrera
+    carreraSelect.addEventListener('change', function () {
+        cargarGrupos(this.value);
+    });
+
+    // Cargar grupos si ya hay una carrera seleccionada
+    @if(old('id_carrera', $datos['id_carrera'] ?? false))
+        document.addEventListener('DOMContentLoaded', function () {
+            cargarGrupos("{{ old('id_carrera', $datos['id_carrera'] ?? '') }}");
+        });
+    @endif
+
+
+   // =============================================
+// Lógica para Sección 3 (Embarazo) - CORREGIDO
+// =============================================
+const generoSelect = document.getElementById('genero');
+const embarazadaGroup = document.getElementById('embarazada-group'); // Nuevo contenedor
+const embarazadaSelect = document.getElementById('embarazada');
+const embarazoDetails = document.getElementById('embarazo-details');
+
+function toggleEmbarazoFields() {
+    if (generoSelect.value === 'Mujer') {
+        embarazadaGroup.style.display = 'block';
+        embarazadaSelect.required = true;
+        
+        if (embarazadaSelect.value === 'Sí') {
+            embarazoDetails.style.display = 'block';
+        }
+    } else {
+        embarazadaGroup.style.display = 'none';
+        embarazadaSelect.required = false;
+        embarazadaSelect.value = 'No';
+        embarazoDetails.style.display = 'none';
+    }
+}
+
+// Aplicar al cargar la página
+toggleEmbarazoFields();
+
+generoSelect.addEventListener('change', toggleEmbarazoFields);
+embarazadaSelect.addEventListener('change', function() {
+    embarazoDetails.style.display = this.value === 'Sí' ? 'block' : 'none';
+});
+
+    // =============================================
+    // Lógica para Sección 3 (Padecimientos crónicos)
+    // =============================================
+    const padecimientoSelect = document.getElementById('padecimiento_cronico');
+    const padecimientoDetails = document.getElementById('padecimiento-details');
+
+    function togglePadecimientoFields() {
+        padecimientoDetails.style.display = padecimientoSelect.value === 'Sí' ? 'block' : 'none';
+    }
+
+    togglePadecimientoFields();
+    padecimientoSelect.addEventListener('change', togglePadecimientoFields);
+
+    // =============================================
+    // Lógica para Sección 3 (Atención psicológica)
+    // =============================================
+    const atencionPsicoSelect = document.getElementById('atencion_psicologica');
+    const psicoDetails = document.getElementById('psicologica-details');
+
+    function togglePsicoFields() {
+        psicoDetails.style.display = atencionPsicoSelect.value === 'Sí' ? 'block' : 'none';
+    }
+
+    togglePsicoFields();
+    atencionPsicoSelect.addEventListener('change', togglePsicoFields);
+
+    // =============================================
+    // Lógica para Sección 4 (Trabajo/Vivienda)
+    // =============================================
+    const trabajaSelect = document.getElementById('trabaja');
+    const trabajaGroup = document.getElementById('trabaja-group');
+    const noTrabajaGroup = document.getElementById('no-trabaja-group');
+    const tipoViviendaSelect = document.getElementById('tipo_vivienda');
+    const rentaGroup = document.getElementById('renta-group');
+
+    function toggleTrabajoFields() {
+        if (trabajaSelect.value === 'Sí') {
+            trabajaGroup.style.display = 'block';
+            noTrabajaGroup.style.display = 'none';
+            
+            document.getElementById('horas_trabajo').required = true;
+            document.getElementById('ingreso_mensual').required = true;
+            
+            document.getElementById('aporte_familiar').required = false;
+            document.getElementById('monto_aporte').required = false;
+        } else {
+            trabajaGroup.style.display = 'none';
+            noTrabajaGroup.style.display = 'block';
+            
+            document.getElementById('aporte_familiar').required = true;
+            document.getElementById('monto_aporte').required = true;
+            
+            document.getElementById('horas_trabajo').required = false;
+            document.getElementById('ingreso_mensual').required = false;
+        }
+    }
+
+    function toggleViviendaFields() {
+        rentaGroup.style.display = tipoViviendaSelect.value === 'Rentada' ? 'block' : 'none';
+        if (tipoViviendaSelect.value === 'Rentada') {
+            document.getElementById('monto_renta').required = true;
+        } else {
+            document.getElementById('monto_renta').required = false;
+        }
+    }
+
+    toggleTrabajoFields();
+    toggleViviendaFields();
+    
+    trabajaSelect.addEventListener('change', toggleTrabajoFields);
+    tipoViviendaSelect.addEventListener('change', toggleViviendaFields);
+
+    // =============================================
+    // Lógica para Sección 5 (Repitió año)
+    // =============================================
+    const repitioAnioSelect = document.getElementById('repitio_anio');
+    const razonRepitioGroup = document.getElementById('razon-repitio-group');
+
+    function toggleRepitioFields() {
+        razonRepitioGroup.style.display = repitioAnioSelect.value === 'Sí' ? 'block' : 'none';
+        if (repitioAnioSelect.value === 'Sí') {
+            document.getElementById('razon_repitio').required = true;
+        } else {
+            document.getElementById('razon_repitio').required = false;
+        }
+    }
+
+    toggleRepitioFields();
+    repitioAnioSelect.addEventListener('change', toggleRepitioFields);
+
+    // =============================================
+    // Lógica para Sección 5 (Apoyo académico)
+    // =============================================
+    const apoyoAcademicoSelect = document.getElementById('apoyo_academico');
+    const apoyoDetails = document.getElementById('apoyo-details');
+
+    function toggleApoyoFields() {
+        apoyoDetails.style.display = apoyoAcademicoSelect.value === 'Sí' ? 'block' : 'none';
+        if (apoyoAcademicoSelect.value === 'Sí') {
+            document.getElementById('tipo_apoyo').required = true;
+            document.getElementById('frecuencia_apoyo').required = true;
+        } else {
+            document.getElementById('tipo_apoyo').required = false;
+            document.getElementById('frecuencia_apoyo').required = false;
+        }
+    }
+
+    toggleApoyoFields();
+    apoyoAcademicoSelect.addEventListener('change', toggleApoyoFields);
+
+    // =============================================
+    // Lógica para el slider de motivación
+    // =============================================
+    const motivacionSlider = document.getElementById('motivacion');
+    const motivacionValue = document.getElementById('motivacion-value');
+
+    motivacionSlider.addEventListener('input', function() {
+        motivacionValue.textContent = this.value;
+    });
+
+    // =============================================
+    // Lógica general del formulario (progreso, validación)
+    // =============================================
+    const sections = document.querySelectorAll('.form-section');
+    const progressBar = document.getElementById('form-progress');
+
+    // Navegación siguiente
+    document.querySelectorAll('.btn-next').forEach(button => {
+        button.addEventListener('click', function() {
+            const currentSection = this.closest('.form-section');
+            const nextSectionNum = parseInt(this.dataset.next);
+            
+            if (validateSection(currentSection)) {
+                currentSection.classList.remove('active');
+                currentSection.style.display = 'none';
+                
+                const nextSection = document.querySelector(`.form-section[data-section="${nextSectionNum}"]`);
+                nextSection.classList.add('active');
+                nextSection.style.display = 'block';
+                
+                const progress = (nextSectionNum / sections.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                
+                nextSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // Navegación anterior
+    document.querySelectorAll('.btn-prev').forEach(button => {
+        button.addEventListener('click', function() {
+            const prevSectionNum = parseInt(this.dataset.prev);
+            
+            document.querySelector('.form-section.active').classList.remove('active');
+            document.querySelector('.form-section.active').style.display = 'none';
+            
+            const prevSection = document.querySelector(`.form-section[data-section="${prevSectionNum}"]`);
+            prevSection.classList.add('active');
+            prevSection.style.display = 'block';
+            
+            const progress = (prevSectionNum / sections.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            prevSection.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // Validación por sección
+    function validateSection(section) {
+        let isValid = true;
+        const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+        
+        inputs.forEach(input => {
+            if (!input.value) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        return isValid;
+    }
+
+    // Validación al enviar
+    document.getElementById('form-abandono').addEventListener('submit', function(e) {
+        if (!validateSection(document.querySelector('.form-section.active'))) {
+            e.preventDefault();
+        }
+    });
+
+    // Aplicar todas las toggles al cargar para campos con valores predefinidos
+    window.addEventListener('load', function() {
+        toggleEmbarazoFields();
+        togglePadecimientoFields();
+        togglePsicoFields();
+        toggleTrabajoFields();
+        toggleViviendaFields();
+        toggleRepitioFields();
+        toggleApoyoFields();
+    });
+
+ // =============================================
+    // Manejar envío del formulario
+    // =============================================
+    document.getElementById('form-abandono').addEventListener('submit', function(e) {
+        // Validación adicional antes de enviar
+        if (!validateSection(document.querySelector('.form-section.active'))) {
+            e.preventDefault();
+            return;
+        }
+        
+        // Mostrar loader
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+        submitBtn.disabled = true;
+    });
+
+    // Si hay mensaje de éxito, limpiar el formulario
+    @if(session('success'))
+        // Resetear el formulario después de 2 segundos
+        setTimeout(() => {
+            document.getElementById('form-abandono').reset();
+            // Recargar grupos si hay carrera seleccionada
+            const carreraId = document.getElementById('id_carrera').value;
+            if (carreraId) cargarGrupos(carreraId);
+            
+            // Resetear progreso
+            document.querySelectorAll('.form-section').forEach((section, index) => {
+                if (index === 0) {
+                    section.classList.add('active');
+                    section.style.display = 'block';
+                } else {
+                    section.classList.remove('active');
+                    section.style.display = 'none';
+                }
+            });
+            document.getElementById('form-progress').style.width = '0%';
+        }, 3000);
+    @endif
+});
+</script>
+@endsection

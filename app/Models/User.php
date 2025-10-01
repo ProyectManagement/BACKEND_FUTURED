@@ -36,4 +36,5 @@ class User extends Eloquent implements AuthenticatableContract
     {
         return $this->belongsTo(Role::class, 'id_rol', '_id');
     }
+
 }

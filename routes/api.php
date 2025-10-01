@@ -1,17 +1,18 @@
 <?php
 
-use App\Http\Controllers\EncuestaController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InteligenciaController;
+use App\Http\Controllers\CarrerasApiController;
+use App\Http\Controllers\GruposApiController;
+use App\Http\Controllers\AlumnosApiController;
 
 
-Route::post('/encuesta', [EncuestaController::class, 'store']);
+Route::get('/prediccion/{matricula}', [InteligenciaController::class, 'predecir']);
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Carreras
+Route::get('/carreras', [CarrerasApiController::class, 'index']);
 
-// Ruta para el dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+// Grupos según carrera
+Route::get('/grupos/{idCarrera}', [GruposApiController::class, 'getByCarrera']);
+
+Route::get('/alumnos-todos', [AlumnosApiController::class, 'index']);

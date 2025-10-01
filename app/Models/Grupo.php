@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model as Eloquent;  // Usa la clase correcta de MongoDB
+use MongoDB\Laravel\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use MongoDB\Laravel\Eloquent\Model as EloquentModel;  // Usa la clase correcta de MongoDB
 
 class Grupo extends Eloquent
 {

@@ -1,7 +1,5 @@
 <?php
 
-// app/Http/Controllers/AuthController.php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -13,20 +11,17 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    // Mostrar formulario de login
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // Mostrar formulario de registro con roles disponibles
     public function showRegisterForm()
     {
-        $roles = Role::all(); // Obtener todos los roles de MongoDB
+        $roles = Role::all();
         return view('auth.register', compact('roles'));
     }
 
-    // Registrar un nuevo usuario
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -34,54 +29,70 @@ class AuthController extends Controller
             'app' => 'required|string|max:255',
             'apm' => 'required|string|max:255',
             'correo' => 'required|email|unique:users,correo',
-            'contraseña' => 'required|string|min:6|confirmed',
-            'id_rol' => 'required|exists:roles,_id', // Asegura que el ID del rol exista en la colección de roles
+            'contraseña' => 'required|string|min:8|confirmed',
+            'id_rol' => 'required|exists:roles,_id',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->route('register.form')
+            return redirect()->route('register')
                              ->withErrors($validator)
                              ->withInput();
         }
 
-        // Crear usuario en MongoDB
         $user = User::create([
             'nombre' => $request->nombre,
             'app' => $request->app,
             'apm' => $request->apm,
             'correo' => $request->correo,
             'contraseña' => Hash::make($request->contraseña),
-            'id_rol' => $request->id_rol, // Guardar el ID del rol seleccionado
+            'id_rol' => $request->id_rol,
         ]);
 
-        // Iniciar sesión inmediatamente después de registrar el usuario
         Auth::login($user);
-
-        // Redirigir al dashboard
-        return redirect()->route('dashboard');
+        return $this->redirectBasedOnRole($user);
     }
 
-    // Autenticación del usuario
     public function login(Request $request)
     {
-        // Validar las credenciales
+        $validator = Validator::make($request->all(), [
+            'correo' => 'required|email',
+            'contraseña' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('login')
+                             ->withErrors($validator)
+                             ->withInput();
+        }
+
         $credentials = $request->only('correo', 'contraseña');
         $user = User::where('correo', $credentials['correo'])->first();
 
-        // Verificar si las credenciales son correctas
         if ($user && Hash::check($credentials['contraseña'], $user->contraseña)) {
             Auth::login($user);
-            return redirect()->route('dashboard');  // Redirige al dashboard
+            return $this->redirectBasedOnRole($user);
         }
 
-        // Si las credenciales son incorrectas
         return redirect()->route('login')->withErrors(['correo' => 'Credenciales incorrectas']);
     }
 
-    // Cerrar sesión
     public function logout()
     {
         Auth::logout();
-        return redirect()->route('login');
+        return redirect()->route('welcome');
     }
+
+   protected function redirectBasedOnRole($user)
+{
+    $role = $user->role;
+    \Log::info('Rol del usuario: ' . ($role ? $role->nombre : 'No encontrado'));
+
+    if ($role && $role->nombre === 'Administrador') {
+        return redirect()->route('users.index');
+    } elseif ($role && $role->nombre === 'Tutor') {
+        return redirect()->route('dashboard');
+    }
+
+    return redirect()->route('dashboard');
+}
 }
