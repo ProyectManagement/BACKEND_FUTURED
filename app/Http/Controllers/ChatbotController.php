@@ -3,19 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http; // Usaremos HTTP client de Laravel
+use Illuminate\Support\Facades\Http;
 
 class ChatbotController extends Controller
 {
-    // Mostrar la vista del chatbot
+    /**
+     * Mostrar la vista pública del chatbot
+     */
     public function index()
     {
-        return view('chatbot'); // tu Blade principal
+        return view('chatbot');
     }
 
-    // Método para procesar predicción vía IA en Render
+    /**
+     * Mostrar la vista del chatbot para tutores
+     */
+    public function tutorChatbot()
+    {
+        // Asegúrate de tener esta vista en resources/views/tutor/chatbot.blade.php
+        return view('tutor.chatbot');
+    }
+
+    /**
+     * Procesar predicción usando la IA en Render
+     */
     public function procesarPrediccion(Request $request)
     {
+        // Validar la matrícula enviada
         $request->validate([
             'matricula' => 'required|string'
         ]);
@@ -23,6 +37,7 @@ class ChatbotController extends Controller
         $matricula = $request->input('matricula');
 
         try {
+            // Llamada HTTP a la API de Render
             $response = Http::post('https://ia-futured.onrender.com/predict/by_matricula', [
                 'matricula' => $matricula
             ]);
@@ -31,13 +46,13 @@ class ChatbotController extends Controller
                 return response()->json($response->json());
             } else {
                 return response()->json([
-                    'error' => 'Error desde la API de IA',
+                    'error' => 'Error en la API de Render',
                     'detalle' => $response->body()
-                ], $response->status());
+                ], 500);
             }
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'No se pudo conectar con la API de IA',
+                'error' => 'No se pudo conectar con la API de Render',
                 'detalle' => $e->getMessage()
             ], 500);
         }
