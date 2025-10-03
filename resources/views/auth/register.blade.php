@@ -121,7 +121,7 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <img src="{{ asset('assets/img/Cuervo cibernético sobre rama vibrante.png') }}" alt="Logo del Sistema" class="logo">
+            <img src="{{ asset('assets/img/cuervo.png') }}" alt="Logo del Sistema" class="logo">
             <h2>Registro</h2>
             <p style="color: #6c757d; font-size: 0.9rem;">Sistema de Tutorías Académicas</p>
         </div>
