@@ -67,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Rutas de Monitoreo del Chatbot
         Route::get('/chatbot', [AdminController::class, 'chatbotMonitor'])->name('admin.chatbot');
+        Route::post('/chatbot/prediccion', [ChatbotController::class, 'procesarPrediccion'])->name('chatbot.prediccion');
         
         // Vistas de Comunicación
         Route::get('/notificaciones', [AdminController::class, 'notificaciones'])->name('admin.notificaciones');
