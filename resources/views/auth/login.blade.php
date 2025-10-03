@@ -10,7 +10,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0; 
             padding: 0; 
-            background: url('././assets/img/docencia.jpg') no-repeat center center fixed;
+            background: url('assets/img/docencia.jpg') no-repeat center center fixed;
             background-size: cover;
             min-height: 100vh;
             display: flex;
@@ -161,6 +161,17 @@
             background-color: #5a6268;
         }
         
+        .btn-outline {
+            background-color: transparent;
+            color: #2e7d32;
+            border: 2px solid #2e7d32;
+        }
+        
+        .btn-outline:hover {
+            background-color: #2e7d32;
+            color: white;
+        }
+        
         .button-group {
             display: flex;
             gap: 15px;
@@ -201,6 +212,24 @@
             font-size: 0.9rem;
         }
         
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .register-link a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .register-link a:hover {
+            color: #1b5e20;
+            text-decoration: underline;
+        }
+        
         /* Animación para los inputs */
         .form-control:focus + .form-label {
             color: #2e7d32;
@@ -234,7 +263,7 @@
     <div class="login-container">
         <div class="login-header">
             <!-- Reemplaza 'ruta/a/tu/logo.png' con la ruta correcta de tu imagen -->
-            <img src="././assets/img/Cuervo cibernético sobre rama vibrante.png" alt="Logo del Sistema" class="logo">
+            <img src="assets/img/cuervo.png" alt="Logo del Sistema" class="logo">
             <h2>Iniciar Sesión</h2>
             <p style="color: #6c757d; margin: 5px 0 0 0; font-size: 0.9rem;">Sistema FuturEd</p>
         </div>
@@ -259,8 +288,15 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i>Ingresar
                 </button>
+                <a href="{{ route('register') }}" class="btn btn-outline">
+                    <i class="fas fa-user-plus"></i>Registrarse
+                </a>
             </div>
         </form>
+        
+        <div class="register-link">
+            ¿No tienes una cuenta? <a href="{{ route('register') }}">Regístrate aquí</a>
+        </div>
         
         <div class="footer-text">
             <i class="fas fa-shield-alt"></i> Acceso seguro al sistema
