@@ -23,6 +23,9 @@ Route::get('/carrera/{carrera}/grupos', [EncuestaController::class, 'getGruposPo
 // Chatbot Routes
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot');
 Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.ask');
+Route::post('/procesar-prediccion', [ChatbotController::class, 'procesarPrediccion']);
+Route::get('/tutor/chatbot', [ChatbotController::class, 'tutorChatbot']);
+
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -67,7 +70,6 @@ Route::middleware(['auth'])->group(function () {
         
         // Rutas de Monitoreo del Chatbot
         Route::get('/chatbot', [AdminController::class, 'chatbotMonitor'])->name('admin.chatbot');
-        Route::post('/chatbot/prediccion', [ChatbotController::class, 'procesarPrediccion'])->name('chatbot.prediccion');
         
         // Vistas de Comunicación
         Route::get('/notificaciones', [AdminController::class, 'notificaciones'])->name('admin.notificaciones');
