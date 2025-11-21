@@ -14,15 +14,15 @@
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --upload-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            --dark-gradient: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-primary: #2d3748;
-            --text-secondary: #718096;
+            --primary-gradient: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            --secondary-gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            --success-gradient: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            --upload-gradient: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%);
+            --dark-gradient: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: #e5e7eb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
@@ -35,7 +35,10 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 22px 22px;
+            background-position: 0 0, 11px 11px;
             min-height: 100vh;
             color: var(--text-primary);
             overflow-x: hidden;
@@ -64,27 +67,25 @@
 
         /* Header Styles */
         .main-header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
+            background: #ffffff;
             border-bottom: 1px solid var(--glass-border);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .header-title {
-            color: white;
+            color: #111827;
             font-weight: 700;
             font-size: 1.8rem;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             letter-spacing: -0.5px;
         }
 
         .header-subtitle {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
             font-size: 0.9rem;
             font-weight: 400;
             margin: 0;
@@ -92,8 +93,8 @@
 
         /* Navigation Styles */
         .nav-pills .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            background: transparent;
+            color: #065f46;
+            background: #ecfdf5;
             border-radius: 50px;
             padding: 0.7rem 1.5rem;
             margin: 0 0.2rem;
@@ -101,6 +102,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            border: 1px solid #d1fae5;
         }
 
         .nav-pills .nav-link::before {
@@ -119,35 +121,34 @@
         }
 
         .nav-pills .nav-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            color: #064e3b;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .nav-pills .nav-link.active {
-            background: rgba(255, 255, 255, 0.25);
+            background: var(--primary-gradient);
             color: white;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+            border: none;
         }
 
         /* Logout Button */
         .logout-btn {
-            background: var(--secondary-gradient);
+            background: var(--primary-gradient);
             border: none;
             color: white;
             padding: 0.6rem 1.2rem;
             border-radius: 50px;
             font-weight: 500;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
         }
 
         .logout-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
             color: white;
         }
 
@@ -269,7 +270,7 @@
         .report-item:hover {
             transform: translateY(-4px);
             box-shadow: var(--shadow-xl);
-            border-color: #667eea;
+            border-color: #16a34a;
         }
 
         .report-item:hover::before {
@@ -391,25 +392,25 @@
         .btn-primary {
             background: var(--primary-gradient);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
         }
 
         .btn-primary:hover {
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.45);
         }
 
         .btn-download {
             background: var(--success-gradient);
             color: white;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
         }
 
         .btn-download:hover {
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.6);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.45);
         }
 
         /* Empty State */
@@ -508,7 +509,17 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-    </style>
+</style>
+<style>
+    .chatbot-bubble { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1050; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg,var(--green),var(--green-dark)); color: #fff; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 14px 28px rgba(22,163,74,.28); cursor: pointer; }
+    .chatbot-bubble:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(22,163,74,.35); }
+    .chatbot-panel { position: fixed; bottom: 96px; right: 1.5rem; width: 380px; max-height: 70vh; background: #fff; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.18); border: 1px solid var(--border); overflow: hidden; z-index: 1050; display: none; }
+    .chatbot-panel.open { display: block; }
+    .chatbot-panel-header { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; background: linear-gradient(135deg,var(--green),var(--green-dark)); color: #fff; }
+    .chatbot-close { background: transparent; border: none; color: #fff; font-size: 1.1rem; }
+    .chatbot-iframe { width: 100%; height: calc(70vh - 56px); border: 0; }
+    @media (max-width: 768px) { .chatbot-panel { width: 92vw; right: .75rem; bottom: 88px; } .chatbot-bubble { right: .75rem; bottom: .75rem; } }
+</style>
 </head>
 <body>
     <!-- Header -->
@@ -765,5 +776,24 @@
             });
         });
     </script>
+<button id="chatbotBubble" class="chatbot-bubble" aria-label="Abrir ChatBot"><i class="fas fa-robot"></i></button>
+<div id="chatbotPanel" class="chatbot-panel" aria-hidden="true">
+    <div class="chatbot-panel-header">
+        <span><i class="fas fa-robot me-2"></i> ChatBot Escolar</span>
+        <button id="chatbotClose" class="chatbot-close" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+    </div>
+    <iframe class="chatbot-iframe" src="{{ route('tutor.chatbot') }}"></iframe>
+</div>
+<script>
+    (function(){
+        const bubble = document.getElementById('chatbotBubble');
+        const panel = document.getElementById('chatbotPanel');
+        const close = document.getElementById('chatbotClose');
+        if(!bubble || !panel || !close) return;
+        bubble.addEventListener('click', function(){ panel.classList.toggle('open'); });
+        close.addEventListener('click', function(){ panel.classList.remove('open'); });
+        document.addEventListener('keydown', function(e){ if(e.key === 'Escape') panel.classList.remove('open'); });
+    })();
+</script>
 </body>
 </html>

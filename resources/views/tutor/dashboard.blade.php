@@ -14,437 +14,107 @@
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            --dark-gradient: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-primary: #2d3748;
-            --text-secondary: #718096;
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --green: #22c55e;
+            --green-dark: #16a34a;
+            --green-50: #eafff2;
+            --text: #0b1321;
+            --muted: #5b677a;
+            --border: #e8f1ea;
+            --shadow: 0 14px 28px rgba(16, 185, 129, 0.08);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background:
+                radial-gradient(circle at 1px 1px, rgba(16,185,129,.08) 1px, transparent 0);
+            background-size: 24px 24px;
             min-height: 100vh;
-            color: var(--text-primary);
+            color: var(--text);
             overflow-x: hidden;
             padding: 2rem 0;
         }
 
-        /* Animated Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
-            z-index: -1;
-            animation: float 20s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
-        }
-
-        /* Header Styles */
+        /* Header */
         .main-header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
+            background: #fff;
+            border-bottom: 1px solid var(--border);
             padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-lg);
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
         }
+        .header-title { font-weight: 800; font-size: 1.8rem; color: var(--text); margin: 0; }
+        .header-subtitle { color: var(--muted); font-size: .95rem; margin: 0; }
 
-        .header-title {
-            color: white;
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            letter-spacing: -0.5px;
-        }
-
-        .header-subtitle {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-            font-weight: 400;
-            margin: 0;
-        }
-
-        /* Navigation Styles */
+        /* Nav pills */
         .nav-pills .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            background: transparent;
-            border-radius: 50px;
-            padding: 0.7rem 1.5rem;
-            margin: 0 0.2rem;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            color: var(--text);
+            background: #f7fbf8;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: .6rem 1.2rem;
+            margin: 0 .25rem;
+            font-weight: 600;
         }
-
-        .nav-pills .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .nav-pills .nav-link:hover::before {
-            left: 100%;
-        }
-
-        .nav-pills .nav-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
+        .nav-pills .nav-link:hover { background: #eef6f0; border-color: #d9e9dc; }
         .nav-pills .nav-link.active {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 10px 20px rgba(22,163,74,.25);
         }
 
-        /* Logout Button */
+        /* Logout */
         .logout-btn {
-            background: var(--secondary-gradient);
-            border: none;
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+            border: none; color: #fff; padding: .6rem 1.2rem; border-radius: 12px; font-weight: 600;
+            box-shadow: 0 10px 20px rgba(22,163,74,.25);
         }
+        .logout-btn:hover { filter: brightness(1.05); }
 
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
-            color: white;
-        }
+        /* Main */
+        .container { max-width: 1200px; }
+        h2 { text-align: center; font-weight: 800; font-size: 2.2rem; color: var(--text); margin-bottom: 2rem; }
 
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        h2 {
-            text-align: center;
-            color: white;
-            font-weight: 700;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Dashboard Cards */
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
+        /* Cards */
+        .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px,1fr)); gap: 1.5rem; }
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 2.5rem;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            animation: slideUp 0.6s ease-out;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: transform .2s ease, box-shadow .2s ease;
         }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        .card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .card:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .card:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .card:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        .card:nth-child(1)::before {
-            background: var(--primary-gradient);
-        }
-
-        .card:nth-child(2)::before {
-            background: var(--success-gradient);
-        }
-
-        .card:nth-child(3)::before {
-            background: var(--info-gradient);
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card h3 {
-            color: var(--text-primary);
-            font-weight: 700;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .card:nth-child(1) h3 {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .card:nth-child(2) h3 {
-            background: var(--success-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .card:nth-child(3) h3 {
-            background: var(--info-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .card h3::before {
-            content: '';
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .card:nth-child(1) h3::before {
-            content: '👥';
-            background: var(--primary-gradient);
-        }
-
-        .card:nth-child(2) h3::before {
-            content: '📚';
-            background: var(--success-gradient);
-        }
-
-        .card:nth-child(3) h3::before {
-            content: '📅';
-            background: var(--info-gradient);
-        }
-
-        .card p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-            font-weight: 500;
-            line-height: 1.6;
-        }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 18px 36px rgba(16,185,129,.12); }
+        .card h3 { font-size: 1.4rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: .6rem; margin-bottom: .75rem; }
+        .card h3::before { content: ''; width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); display: inline-flex; align-items: center; justify-content: center; color: #fff; }
+        .card:nth-child(1) h3::before { content: '👥'; }
+        .card:nth-child(2) h3::before { content: '📚'; }
+        .card:nth-child(3) h3::before { content: '📅'; }
+        .card p { color: var(--muted); font-weight: 500; }
 
         .card .btn {
-            background: var(--dark-gradient);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.8rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+            color: #fff; border: none; padding: .8rem 1.4rem; border-radius: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: .5rem; box-shadow: 0 10px 20px rgba(22,163,74,.25);
         }
+        .card .btn:hover { filter: brightness(1.06); }
 
-        .card .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .card .btn:hover::before {
-            left: 100%;
-        }
-
-        .card .btn:hover {
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .card:nth-child(1) .btn:hover {
-            background: var(--primary-gradient);
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
-        }
-
-        .card:nth-child(2) .btn:hover {
-            background: var(--success-gradient);
-            box-shadow: 0 8px 30px rgba(79, 172, 254, 0.6);
-        }
-
-        .card:nth-child(3) .btn:hover {
-            background: var(--info-gradient);
-            box-shadow: 0 8px 30px rgba(168, 237, 234, 0.6);
-        }
-
-        /* Stats Numbers */
-        .card p {
-            position: relative;
-        }
-
-        /* Responsive Design */
+        /* Responsive */
         @media (max-width: 768px) {
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            
-            .card {
-                padding: 2rem;
-            }
-            
-            h2 {
-                font-size: 2rem;
-                margin-bottom: 2rem;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .nav-pills {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+            h2 { font-size: 1.9rem; }
         }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 0.5rem;
-            }
-            
-            .card {
-                padding: 1.5rem;
-            }
-            
-            .card h3 {
-                font-size: 1.3rem;
-            }
-            
-            h2 {
-                font-size: 1.8rem;
-            }
-        }
-
-        /* Loading Animation */
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Pulse Effect for Numbers */
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
+    </style>
+    <style>
+        .chatbot-bubble { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1050; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 14px 28px rgba(22,163,74,.28); cursor: pointer; }
+        .chatbot-bubble:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(22,163,74,.35); }
+        .chatbot-panel { position: fixed; bottom: 96px; right: 1.5rem; width: 380px; max-height: 70vh; background: #fff; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.18); border: 1px solid var(--border); overflow: hidden; z-index: 1050; display: none; }
+        .chatbot-panel.open { display: block; }
+        .chatbot-panel-header { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; }
+        .chatbot-close { background: transparent; border: none; color: #fff; font-size: 1.1rem; }
+        .chatbot-iframe { width: 100%; height: calc(70vh - 56px); border: 0; }
+        @media (max-width: 768px) { .chatbot-panel { width: 92vw; right: .75rem; bottom: 88px; } .chatbot-bubble { right: .75rem; bottom: .75rem; } }
     </style>
 </head>
 <body>
@@ -457,7 +127,7 @@
                         <i class="fas fa-chalkboard-teacher me-2"></i>
                         PANEL DE TUTOR
                     </h1>
-                    <p class="header-subtitle">Sistema de Gestión Académica Universitaria</p>
+    <p class="header-subtitle">Sistema de Gestión Académica Universitaria</p>
                 </div>
                 
                 <!-- Navigation -->
@@ -616,6 +286,25 @@
             const container = document.querySelector('.container');
             container.classList.add('fade-in');
         });
+    </script>
+    <button id="chatbotBubble" class="chatbot-bubble" aria-label="Abrir ChatBot"><i class="fas fa-robot"></i></button>
+    <div id="chatbotPanel" class="chatbot-panel" aria-hidden="true">
+        <div class="chatbot-panel-header">
+            <span><i class="fas fa-robot me-2"></i> ChatBot Escolar</span>
+            <button id="chatbotClose" class="chatbot-close" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+        </div>
+        <iframe class="chatbot-iframe" src="{{ route('tutor.chatbot') }}"></iframe>
+    </div>
+    <script>
+        (function(){
+            const bubble = document.getElementById('chatbotBubble');
+            const panel = document.getElementById('chatbotPanel');
+            const close = document.getElementById('chatbotClose');
+            if(!bubble || !panel || !close) return;
+            bubble.addEventListener('click', function(){ panel.classList.toggle('open'); });
+            close.addEventListener('click', function(){ panel.classList.remove('open'); });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') panel.classList.remove('open'); });
+        })();
     </script>
 </body>
 </html>

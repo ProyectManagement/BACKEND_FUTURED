@@ -3,317 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FuturEd - Detección Inteligente de Abandono Escolar</title>
+    <title>FuturEd – Detección temprana de abandono escolar</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --dark-bg: #0f1419;
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a9c0;
+            --green: #22c55e;
+            --green-dark: #16a34a;
+            --bg: #f6faf7;
+            --text: #0b1321;
+            --muted: #5b677a;
+            --panel-bg: #0f1a26;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            position: relative;
+            background: var(--bg);
+            color: var(--text);
         }
 
-        /* Fondo animado con partículas */
-        .animated-bg {
+        /* Fondo con cuadrícula sutil */
+        .grid-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(ellipse at center, #1a1f35 0%, #0f1419 100%);
+            inset: 0;
+            background-image: radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.08) 1px, transparent 0);
+            background-size: 24px 24px;
+            pointer-events: none;
         }
 
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(102, 126, 234, 0.6);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
+        .container-xl { max-width: 1200px; }
 
-        .particle:nth-child(2n) {
-            background: rgba(245, 87, 108, 0.6);
-            animation-duration: 8s;
-            animation-delay: -2s;
+        /* Hero */
+        .hero {
+            padding: 72px 0 48px;
         }
-
-        .particle:nth-child(3n) {
-            background: rgba(79, 172, 254, 0.6);
-            animation-duration: 10s;
-            animation-delay: -4s;
+        .hero h1 {
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
         }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
-        /* Hero Section */
-        .hero-section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            position: relative;
-            padding: 80px 0;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 2rem;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        .hero-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            line-height: 1.6;
-            animation: fadeInUp 1s ease-out 0.2s both;
-        }
-
-        .ai-visual {
-            position: relative;
-            max-width: 500px;
-            margin: 0 auto 2rem;
-            animation: fadeInUp 1s ease-out 0.4s both;
-        }
-
-        .logo-container {
-            width: 250px;
-            height: 250px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .logo-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 0 30px rgba(79, 172, 254, 0.5);
-            border: 3px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo-container::before {
-            content: '';
-            position: absolute;
-            width: 120%;
-            height: 120%;
-            border: 2px solid rgba(79, 172, 254, 0.3);
-            border-radius: 50%;
-            animation: rotate 3s linear infinite;
-        }
-
-        .logo-container::after {
-            content: '';
-            position: absolute;
-            width: 140%;
-            height: 140%;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            border-radius: 50%;
-            animation: rotate 4s linear infinite reverse;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Botones */
-        .btn-custom {
-            padding: 15px 40px;
-            border-radius: 50px;
+        .hero .highlight { color: var(--green); }
+        .hero p { color: var(--muted); font-size: 1.15rem; }
+        .btn-login {
+            background: var(--green);
+            border: 1px solid #19b462;
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
+        }
+        .btn-login:hover { background: var(--green-dark); color: #fff; }
+        .btn-demo {
+            border: 2px solid var(--green);
+            color: var(--green-dark);
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            background: #fff;
+        }
+
+        /* Tarjeta grande con logo */
+        .brand-card {
+            background: var(--panel-bg);
+            border-radius: 26px;
+            padding: 36px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+        }
+        .ring {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 24px;
+            background: radial-gradient(circle at 50% 50%, rgba(34,197,94,0.2) 0, rgba(34,197,94,0.12) 45%, rgba(34,197,94,0.06) 65%, transparent 70%), #0f1a26;
+            display: grid;
+            place-items: center;
             position: relative;
             overflow: hidden;
         }
-
-        .btn-primary-custom {
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary-custom {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
-        }
-
-        .btn-secondary-custom:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* Features */
-        .features-section {
-            padding: 80px 0;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
-        }
-
-        .feature-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2.5rem;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .feature-icon {
-            width: 80px;
-            height: 80px;
+        .ring::before {
+            content: '';
+            position: absolute;
+            inset: 8%;
             border-radius: 50%;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
+            border: 6px solid rgba(34, 197, 94, 0.35);
+            box-shadow: 0 0 40px rgba(34,197,94,0.35) inset;
         }
+        .ring img { width: 72%; border-radius: 50%; }
 
-        .feature-icon.ai { background: var(--primary-gradient); }
-        .feature-icon.analytics { background: var(--secondary-gradient); }
-        .feature-icon.alerts { background: var(--accent-gradient); }
-
-        /* Animaciones */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Panel de análisis */
+        .panel {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 14px 30px rgba(0,0,0,0.08);
         }
-
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease-out both;
+        .panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 18px; border-bottom: 1px solid #eef3ef;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .logo-container {
-                width: 180px;
-                height: 180px;
-            }
-            
-            .btn-custom {
-                padding: 12px 30px;
-                font-size: 1rem;
-            }
+        .badge-live {
+            background: rgba(34,197,94,0.12); color: var(--green-dark);
+            border: 1px solid rgba(34,197,94,0.25);
+            border-radius: 999px; padding: 6px 12px; font-weight: 600;
         }
+        .metric {
+            border: 1px solid #eef3ef; border-radius: 16px; padding: 18px;
+        }
+        .metric h3 { color: var(--green-dark); margin: 0; font-weight: 800; }
+        .metric small { color: #7a889b; }
 
-        /* Footer */
-        .footer {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 40px 0;
-            text-align: center;
-            color: var(--text-secondary);
+        /* Estadísticas inferiores */
+        .stats { color: var(--text); }
+        .stats .value { font-weight: 800; color: var(--green-dark); font-size: 1.6rem; }
+        .stats small { color: #7a889b; }
+
+        @media (max-width: 992px) {
+            .brand-card { margin-top: 28px; }
         }
     </style>
 </head>
 <body>
-    <!-- Fondo animado -->
-    <div class="animated-bg">
-        <!-- Partículas generadas por JavaScript -->
-    </div>
+    <div class="grid-bg"></div>
 
-    <!-- Sección Hero -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 hero-content">
-                    <h1 class="hero-title">¡Bienvenido a <strong>FuturEd</strong>!</h1>
-                    <p class="hero-subtitle">
-                        Plataforma inteligente para la <strong>detección temprana de abandono escolar</strong> 
-                        mediante Inteligencia Artificial. Analizamos patrones y brindamos alertas 
-                        preventivas para mejorar la retención estudiantil.
+    <section class="hero">
+        <div class="container-xl">
+            <div class="row align-items-start g-4">
+                <!-- Texto principal -->
+                <div class="col-lg-6">
+                    <span class="badge bg-success bg-opacity-10 text-success fw-semibold mb-3" style="border:1px solid rgba(34,197,94,.25);">Tecnología Educativa Avanzada</span>
+                    <h1>
+                        Detección <span class="highlight">temprana</span> de<br>
+                        abandono escolar
+                    </h1>
+                    <p class="mt-3">
+                        Plataforma institucional de inteligencia artificial que analiza patrones de comportamiento estudiantil para identificar riesgos y generar alertas preventivas, mejorando significativamente la retención académica.
                     </p>
-                    <div class="d-flex gap-3 flex-wrap">
-                        <a href="{{ route('login') }}" class="btn btn-custom btn-primary-custom">
-                            <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                    <div class="d-flex gap-3 mt-4 flex-wrap">
+                        <a href="{{ route('login') }}" class="btn btn-login">
+                            <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Iniciar Sesión
+                        </a>
+                        <a href="#" class="btn btn-demo">
+                            <i class="fa-regular fa-calendar-check me-2"></i> Solicitar Demo
                         </a>
                     </div>
+
+                    <div class="row mt-5 gx-4 gy-3 stats">
+                        <div class="col-6 col-md-4">
+                            <div class="value">94%</div>
+                            <small>Precisión predictiva</small>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="value">50K+</div>
+                            <small>Estudiantes monitoreados</small>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="value">35%</div>
+                            <small>Reducción de deserción</small>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Panel lado derecho -->
                 <div class="col-lg-6">
-                    <div class="ai-visual">
-                        <div class="logo-container">
-                            <!-- Reemplaza la ruta con la ubicación de tu logo -->
-                            <img src="././assets/img/FuturEd.png" alt="FuturEd Logo" class="logo-img">
+                    <div class="brand-card">
+                        <div class="ring">
+                            <img src="{{ asset('assets/img/FuturEd.png') }}" alt="FUTURED">
+                        </div>
+                    </div>
+
+                    <div class="panel mt-4">
+                        <div class="panel-header">
+                            <strong>Panel de Análisis</strong>
+                            <span class="badge-live">En vivo</span>
+                        </div>
+                        <div class="p-3">
+                            <div class="row g-3">
+                                <div class="col-6 col-md-3">
+                                    <div class="metric">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                                            <span>Alertas Activas</span>
+                                        </div>
+                                        <h3 class="mt-2">24</h3>
+                                        <small>↑ 12% vs semana anterior</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="metric">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-regular fa-circle-check text-success"></i>
+                                            <span>Retención</span>
+                                        </div>
+                                        <h3 class="mt-2">96.2%</h3>
+                                        <small>↑ 3.5% este trimestre</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="metric">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-user-group text-primary"></i>
+                                            <span>Estudiantes en Riesgo</span>
+                                        </div>
+                                        <h3 class="mt-2">127</h3>
+                                        <small>↑ 8% vs mes anterior</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="metric">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-chart-column text-info"></i>
+                                            <span>Intervenciones</span>
+                                        </div>
+                                        <h3 class="mt-2">342</h3>
+                                        <small>↑ 15% efectividad</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mini gráfico decorativo -->
+                            <div class="mt-3">
+                                <div class="d-flex align-items-end justify-content-between" style="height:120px">
+                                    <div style="width:14%;height:40%;background:linear-gradient(0deg,#d7fbe1,#9ae6b4);border-radius:10px"></div>
+                                    <div style="width:14%;height:60%;background:linear-gradient(0deg,#d7fbe1,#86efac);border-radius:10px"></div>
+                                    <div style="width:14%;height:50%;background:linear-gradient(0deg,#d7fbe1,#86efac);border-radius:10px"></div>
+                                    <div style="width:14%;height:75%;background:linear-gradient(0deg,#d7fbe1,#4ade80);border-radius:10px"></div>
+                                    <div style="width:14%;height:58%;background:linear-gradient(0deg,#d7fbe1,#86efac);border-radius:10px"></div>
+                                    <div style="width:14%;height:85%;background:linear-gradient(0deg,#d7fbe1,#22c55e);border-radius:10px"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -321,122 +240,10 @@
         </div>
     </section>
 
-    <!-- Características principales -->
-    <section id="features" class="features-section">
-        <div class="container">
-            <div class="row text-center mb-5">
-                <div class="col-12">
-                    <h2 class="display-5 text-white mb-4 fade-in-up">¿Cómo funciona FuturEd?</h2>
-                    <p class="lead text-secondary fade-in-up" style="animation-delay: 0.2s;">
-                        Utilizamos tecnología de vanguardia para identificar estudiantes en riesgo
-                    </p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="feature-card fade-in-up" style="animation-delay: 0.4s;">
-                        <div class="feature-icon ai">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <h4 class="text-white mb-3">Inteligencia Artificial</h4>
-                        <p class="text-secondary">
-                            Algoritmos avanzados analizan patrones de comportamiento y rendimiento académico
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card fade-in-up" style="animation-delay: 0.6s;">
-                        <div class="feature-icon analytics">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h4 class="text-white mb-3">Analytics Predictivos</h4>
-                        <p class="text-secondary">
-                            Identificamos factores de riesgo antes de que se conviertan en abandono real
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card fade-in-up" style="animation-delay: 0.8s;">
-                        <div class="feature-icon alerts">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <h4 class="text-white mb-3">Alertas Tempranas</h4>
-                        <p class="text-secondary">
-                            Notificaciones automáticas para intervenir a tiempo y apoyar al estudiante
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p class="mb-0">© 2025 FuturEd. Tecnología educativa para un futuro mejor.</p>
+    <footer class="py-4">
+        <div class="container-xl text-center text-muted">
+            © {{ date('Y') }} FuturEd • Prediciendo el futuro estudiantil.
         </div>
     </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Generar partículas animadas
-        function createParticles() {
-            const bg = document.querySelector('.animated-bg');
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                bg.appendChild(particle);
-            }
-        }
-
-        // Smooth scroll para enlaces internos
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Animaciones en scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.fade-in-up').forEach(el => {
-            el.style.animationPlayState = 'paused';
-            observer.observe(el);
-        });
-
-        // Inicializar partículas
-        createParticles();
-
-        // Efecto parallax sutil en el héroe
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const parallax = document.querySelector('.hero-section');
-            const speed = scrolled * 0.5;
-            parallax.style.transform = `translateY(${speed}px)`;
-        });
-    </script>
 </body>
 </html>
