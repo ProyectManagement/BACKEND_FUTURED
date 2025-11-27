@@ -240,67 +240,94 @@
                 Administra y supervisa a tus estudiantes asignados
             </p>
 
+            <div class="content-card mb-3">
+                <form method="GET" action="{{ route('tutor.alumnos') }}" class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Filtrar por grupo</label>
+                        <select name="grupo" class="form-select">
+                            <option value="">Todos mis grupos</option>
+                            @foreach($gruposAsignados as $g)
+                                <option value="{{ (string)$g->_id }}" {{ ($grupoFiltro ?? '') == (string)$g->_id ? 'selected' : '' }}>
+                                    {{ $g->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Aplicar</button>
+                    </div>
+                    @if($grupoFiltro)
+                        <div class="col-md-3">
+                            <a href="{{ route('tutor.alumnos') }}" class="btn btn-outline-secondary w-100">Limpiar</a>
+                        </div>
+                    @endif
+                </form>
+            </div>
+
 
             <!-- Alumnos List -->
             <div class="fade-in" style="animation-delay: 0.2s">
                 <h3 class="section-title">
                     <i class="fas fa-list"></i>
-                    Alumnos Asignados
+                    Alumnos Asignados por Grupo
                 </h3>
 
                 @if ($alumnos->isEmpty())
                     <div class="empty-state">
                         <i class="fas fa-user-friends"></i>
                         <h3>No hay alumnos asignados</h3>
-                        <p>Comienza agregando tu primer alumno usando el formulario anterior</p>
+                        <p>Aún no hay alumnos en tus grupos asignados</p>
                     </div>
                 @else
-                    <div class="alumnos-grid">
-                        @foreach ($alumnos as $index => $alumno)
-                            <div class="alumno-card fade-in" style="animation-delay: {{ 0.3 + ($index * 0.1) }}s">
-                                <div class="alumno-header">
-                                    <div class="alumno-icon">
-                                        <i class="fas fa-user-graduate"></i>
+                    @foreach ($alumnosPorGrupo as $grupoNombre => $lista)
+                        <h4 class="section-title"><i class="fas fa-users"></i> Grupo {{ $grupoNombre }}</h4>
+                        <div class="alumnos-grid">
+                            @foreach ($lista as $index => $alumno)
+                                <div class="alumno-card fade-in" style="animation-delay: {{ 0.3 + ($index * 0.1) }}s">
+                                    <div class="alumno-header">
+                                        <div class="alumno-icon">
+                                            <i class="fas fa-user-graduate"></i>
+                                        </div>
+                                        <div class="alumno-status">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            Activo
+                                        </div>
                                     </div>
-                                    <div class="alumno-status">
-                                        <i class="fas fa-check-circle me-1"></i>
-                                        Activo
+
+                                    <h4 class="alumno-title">
+                                        {{ $alumno->nombre }} {{ $alumno->apellido_paterno }} {{ $alumno->apellido_materno }}
+                                    </h4>
+
+                                    <div class="alumno-info">
+                                        <div class="info-row">
+                                            <i class="fas fa-id-card"></i>
+                                            <span class="info-label">Matrícula:</span>
+                                            <span class="info-value">{{ $alumno->matricula ?? 'N/A' }}</span>
+                                        </div>
+
+                                        <div class="info-row">
+                                            <i class="fas fa-graduation-cap"></i>
+                                            <span class="info-label">Carrera:</span>
+                                            <span class="info-value">{{ $alumno->carrera->nombre ?? 'Sin carrera' }}</span>
+                                        </div>
+
+                                        <div class="info-row">
+                                            <i class="fas fa-users"></i>
+                                            <span class="info-label">Grupo:</span>
+                                            <span class="info-value">{{ $alumno->grupo->nombre ?? 'Sin grupo' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-end">
+                                        <a href="{{ route('tutor.alumno-detalle', $alumno->id) }}" class="btn-details">
+                                            <i class="fas fa-eye me-2"></i>
+                                            Ver Detalles
+                                        </a>
                                     </div>
                                 </div>
-
-                                <h4 class="alumno-title">
-                                    {{ $alumno->nombre }} {{ $alumno->apellido_paterno }} {{ $alumno->apellido_materno }}
-                                </h4>
-
-                                <div class="alumno-info">
-                                    <div class="info-row">
-                                        <i class="fas fa-id-card"></i>
-                                        <span class="info-label">Matrícula:</span>
-                                        <span class="info-value">{{ $alumno->matricula ?? 'N/A' }}</span>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <i class="fas fa-graduation-cap"></i>
-                                        <span class="info-label">Carrera:</span>
-                                        <span class="info-value">{{ $alumno->carrera->nombre ?? 'Sin carrera' }}</span>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <i class="fas fa-users"></i>
-                                        <span class="info-label">Grupo:</span>
-                                        <span class="info-value">{{ $alumno->grupo->nombre ?? 'Sin grupo' }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="text-end">
-                                    <a href="{{ route('tutor.alumno-detalle', $alumno->id) }}" class="btn-details">
-                                        <i class="fas fa-eye me-2"></i>
-                                        Ver Detalles
-                                    </a>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @endforeach
                 @endif
             </div>
         </div>

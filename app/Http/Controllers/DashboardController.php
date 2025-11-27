@@ -108,19 +108,32 @@ class DashboardController extends Controller
         return view('tutor.calendario', compact('calendarDays', 'currentMonth', 'currentYear', 'currentMonthNum', 'events', 'eventsDetails'));
     }
 
-    public function alumnos()
-{
-    $alumnos = Alumno::where('id_users', auth()->id())
-        ->with(['carrera', 'grupo']) // Cargar relaciones
-        ->get();
+    public function alumnos(Request $request)
+    {
+        $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id', 'nombre']);
+        $grupoIds = $gruposAsignados->map(fn($g) => (string)$g->_id)->toArray();
 
-    \Log::info('Alumnos debug', [
-        'user_id' => auth()->id(),
-        'alumnos' => $alumnos->toArray(),
-    ]);
+        $grupoFiltro = $request->input('grupo');
+        $query = Alumno::query()->with(['carrera', 'grupo']);
 
-    return view('tutor.alumnos', compact('alumnos'));
-}
+        if (!empty($grupoIds)) {
+            if ($grupoFiltro && in_array($grupoFiltro, $grupoIds, true)) {
+                $query->where('id_grupo', $grupoFiltro);
+            } else {
+                $query->whereIn('id_grupo', $grupoIds);
+            }
+        } else {
+            $query->where('id_users', auth()->id());
+        }
+
+        $alumnos = $query->get();
+
+        $alumnosPorGrupo = $alumnos->groupBy(function ($alumno) {
+            return optional($alumno->grupo)->nombre ?? 'Sin grupo';
+        });
+
+        return view('tutor.alumnos', compact('alumnos', 'alumnosPorGrupo', 'gruposAsignados', 'grupoFiltro'));
+    }
     public function show($id)
     {
         $alumno = Alumno::with('grupo', 'carrera')->find($id);
