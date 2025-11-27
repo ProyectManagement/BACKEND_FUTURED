@@ -166,14 +166,21 @@
                     </ul>
                 </nav>
 
-                <!-- Logout Form -->
-                <form method="POST" action="{{ route('logout') }}" class="d-none d-lg-block">
-                    @csrf
-                    <button type="submit" class="btn logout-btn">
-                        <i class="fas fa-sign-out-alt me-2"></i>
-                        Cerrar Sesión
+                <div class="dropdown d-none d-lg-block">
+                    <button class="btn logout-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-2"></i> {{ strtoupper(auth()->user()->nombre ?? 'CUENTA') }}
                     </button>
-                </form>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('tutor.perfil') }}"><i class="fas fa-id-badge me-2"></i>Mi perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <!-- Mobile Navigation -->
@@ -210,12 +217,11 @@
                                 <i class="fas fa-robot"></i>
                             </a>
                         </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('tutor.perfil') }}"><i class="fas fa-user"></i></a></li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
-                                <button type="submit" class="nav-link btn btn-link">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                </button>
+                                <button type="submit" class="nav-link btn btn-link"><i class="fas fa-sign-out-alt"></i></button>
                             </form>
                         </li>
                     </ul>

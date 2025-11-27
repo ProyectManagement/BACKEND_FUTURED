@@ -6,9 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Alumnos</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
+    <header class="main-header" style="background:#fff;border-bottom:1px solid #e2e8f0;padding:1rem 0;box-shadow:0 8px 16px rgba(0,0,0,.06)">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1 style="margin:0;font-weight:800;font-size:1.4rem;color:#0f172a"><i class="fas fa-chalkboard-teacher me-2"></i>PANEL DE TUTOR</h1>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle me-2"></i> {{ strtoupper(auth()->user()->nombre ?? 'CUENTA') }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ route('tutor.perfil') }}"><i class="fas fa-id-badge me-2"></i>Mi perfil</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
     <div class="container">
         <h1>Dashboard de Alumnos</h1>
 

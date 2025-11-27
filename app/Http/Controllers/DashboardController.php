@@ -9,6 +9,9 @@ use App\Models\Reporte; // Asegúrate de crear este modelo
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
 {
@@ -213,5 +216,43 @@ class DashboardController extends Controller
             return Storage::disk('public')->download($reporte->archivo);
         }
         return redirect()->back()->with('error', 'Reporte no encontrado');
+    }
+
+    public function perfil()
+    {
+        $user = auth()->user();
+        return view('tutor.perfil', compact('user'));
+    }
+
+    public function actualizarPerfil(Request $request)
+    {
+        $user = auth()->user();
+
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255',
+            'app' => 'required|string|max:255',
+            'apm' => 'required|string|max:255',
+            'correo' => ['required', 'email', 'unique:users,correo,' . $user->_id . ',_id'],
+            'contraseña' => 'nullable|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $data = [
+            'nombre' => $request->input('nombre'),
+            'app' => $request->input('app'),
+            'apm' => $request->input('apm'),
+            'correo' => $request->input('correo'),
+        ];
+
+        if ($request->filled('contraseña')) {
+            $data['contraseña'] = Hash::make($request->input('contraseña'));
+        }
+
+        $user->update($data);
+
+        return redirect()->route('tutor.perfil')->with('success', 'Perfil actualizado correctamente');
     }
 }

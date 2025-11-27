@@ -136,6 +136,12 @@ class EncuestaController extends Controller
         ]);
         $alumno->save();
 
+        $grupoAsignado = Grupo::find($request->id_grupo);
+        if ($grupoAsignado && !empty($grupoAsignado->id_tutor)) {
+            $alumno->id_users = (string) $grupoAsignado->id_tutor;
+            $alumno->save();
+        }
+
         // Guardar encuesta
         $encuesta = Encuesta::firstOrNew(['id_alumno' => $alumno->_id]);
         $encuesta->fill([

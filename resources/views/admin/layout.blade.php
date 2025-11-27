@@ -58,6 +58,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.chatbot') }}">Chatbot</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.calendario') }}">Calendario</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.notificaciones') }}">Notificaciones</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.grupos.asignaciones') }}">Grupos</a></li>
                     </ul>
                     
                     <!-- Formulario de logout mejorado -->

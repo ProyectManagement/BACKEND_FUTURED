@@ -10,7 +10,7 @@ class Grupo extends Eloquent
 {
     protected $connection = 'mongodb';
     protected $collection = 'grupos';
-    protected $fillable = ['nombre', 'id_carrera'];
+    protected $fillable = ['nombre', 'id_carrera', 'id_tutor'];
 
     // Relación con el modelo Alumno
     public function alumnos()
@@ -22,5 +22,10 @@ class Grupo extends Eloquent
     public function carrera()
     {
         return $this->belongsTo(Carrera::class, 'id_carrera', '_id');
+    }
+
+    public function tutor()
+    {
+        return $this->belongsTo(User::class, 'id_tutor', '_id');
     }
 }

@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\Grupo;
+use App\Models\Role;
+use MongoDB\BSON\ObjectId;
 
 class AdminController extends Controller
 {
@@ -213,5 +216,28 @@ class AdminController extends Controller
         return view('admin.roles', compact('users'));
     }
 
-   
+    public function gruposAsignaciones()
+    {
+        $grupos = Grupo::with(['carrera', 'tutor'])->get();
+        $roleTutor = Role::where('nombre', 'Tutor')->first();
+        $tutores = $roleTutor ? User::where('id_rol', $roleTutor->_id)->get() : collect();
+        return view('admin.grupos-asignar', compact('grupos', 'tutores'));
+    }
+
+    public function asignarTutorGrupo(Request $request, $grupoId)
+    {
+        $request->validate([
+            'tutor_id' => 'required|exists:users,_id',
+        ]);
+
+        $grupo = Grupo::find($grupoId);
+        if (!$grupo) {
+            return redirect()->back()->with('error', 'Grupo no encontrado');
+        }
+
+        $grupo->id_tutor = $request->input('tutor_id');
+        $grupo->save();
+
+        return redirect()->back()->with('success', 'Tutor asignado al grupo');
+    }
 }

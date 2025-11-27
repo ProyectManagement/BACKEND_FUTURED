@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::post('/grupos/{id}/asignar-tutor', [AdminController::class, 'asignarTutorGrupo'])->name('admin.grupos.asignarTutor');
     });
 
     // Admin Panel Routes (restricted to Administrador role)
@@ -64,6 +65,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/{id}/rename', [ReportController::class, 'rename'])->name('reportes.rename');
             Route::get('/{id}/download', [ReportController::class, 'download'])->name('reportes.download');
         });
+
+        Route::get('/grupos/asignaciones', [AdminController::class, 'gruposAsignaciones'])->name('admin.grupos.asignaciones');
 
         // Rutas de Auditoría de Usuarios
         Route::get('/auditoria', [AdminController::class, 'auditoria'])->name('admin.auditoria');
@@ -109,5 +112,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/notificaciones', [UserController::class, 'notificaciones'])->name('tutor.notificaciones');
         Route::get('/chatbot', [ChatbotController::class, 'tutorChatbot'])->name('tutor.chatbot');
         Route::post('/chatbot/procesar', [ChatbotController::class, 'procesarPrediccion'])->name('tutor.chatbot.procesar');
+        Route::get('/perfil', [DashboardController::class, 'perfil'])->name('tutor.perfil');
+        Route::post('/perfil', [DashboardController::class, 'actualizarPerfil'])->name('tutor.perfil.update');
     });
 });
