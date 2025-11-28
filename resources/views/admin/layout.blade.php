@@ -52,13 +52,10 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                      <li class="nav-item"><a class="nav-link" href="{{ route('admin.index') }}">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('users.index') }}">Usuarios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.reportes') }}">Reportes</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.chatbot') }}">Chatbot</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.calendario') }}">Calendario</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.notificaciones') }}">Notificaciones</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.grupos.asignaciones') }}">Grupos</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.dashboard') ? 'active' : '' }}" href="{{ route('admin.carrera.dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><span class="nav-link" style="pointer-events:none;">Carrera</span></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.tutores') ? 'active' : '' }}" href="{{ route('admin.carrera.tutores') }}">Monitoreo de Tutores</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.estudiantes') ? 'active' : '' }}" href="{{ route('admin.carrera.estudiantes') }}">Estudiantes</a></li>
                     </ul>
                     
                     <!-- Formulario de logout mejorado -->

@@ -52,7 +52,14 @@ Route::middleware(['auth'])->group(function () {
     // Admin Panel Routes (restricted to Administrador role)
     Route::prefix('admin')->middleware(['role:Administrador'])->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.index');
-        
+
+        // Panel de Carrera (Directivo)
+        Route::prefix('carrera')->group(function () {
+            Route::get('/dashboard', [AdminController::class, 'carreraDashboard'])->name('admin.carrera.dashboard');
+            Route::get('/tutores', [AdminController::class, 'carreraTutores'])->name('admin.carrera.tutores');
+            Route::get('/estudiantes', [AdminController::class, 'carreraEstudiantes'])->name('admin.carrera.estudiantes');
+        });
+
         // Rutas de Reportes
         Route::prefix('reportes')->group(function () {
             Route::get('/', [ReportController::class, 'index'])->name('admin.reportes');

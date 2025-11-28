@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
-use Jenssegers\Mongodb\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use MongoDB\Laravel\Eloquent\Model as EloquentModel;
 
-class Prediccion extends Model
+
+class Prediccion extends Eloquent
 {
     protected $connection = 'mongodb';
     protected $collection = 'predicciones';
-    protected $fillable = ['id_alumno', 'fecha', 'riesgo'];
+    protected $fillable = ['id_alumno', 'matricula', 'fecha', 'riesgo', 'motivo', 'recomendacion', 'nombre_completo', 'nombre_grupo'];
 }
