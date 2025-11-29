@@ -6,6 +6,20 @@
     <title>FuturEd – Detección temprana de abandono escolar</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <script>
+        (function(){
+            var src='{{ asset('assets/img/FuturEd2.png') }}';
+            var link=document.querySelector('link[rel="icon"]');
+            if(!link){ link=document.createElement('link'); link.rel='icon'; document.head.appendChild(link); }
+            var c=document.createElement('canvas'); var s=64; c.width=s; c.height=s; var ctx=c.getContext('2d');
+            ctx.beginPath(); ctx.arc(s/2, s/2, s/2, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+            var img=new Image(); img.onload=function(){ ctx.drawImage(img, 0, 0, s, s); link.href=c.toDataURL('image/png'); };
+            img.src=src;
+        })();
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
@@ -98,6 +112,7 @@
             background: #ffffff;
             border-radius: 20px;
             box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
         .panel-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -110,9 +125,15 @@
         }
         .metric {
             border: 1px solid #eef3ef; border-radius: 16px; padding: 18px;
+            text-align: center;
         }
         .metric h3 { color: var(--green-dark); margin: 0; font-weight: 800; }
         .metric small { color: #7a889b; }
+        .metric .d-flex { flex-wrap: wrap; justify-content: center; }
+        .metric .d-flex span { min-width: 0; overflow-wrap: anywhere; word-break: break-word; font-size: 0.95rem; line-height: 1.2; }
+
+        .panel-centered { margin-left: auto; margin-right: auto; }
+        @media (min-width: 992px) { .panel { max-width: 720px; } }
 
         /* Estadísticas inferiores */
         .stats { color: var(--text); }
@@ -172,16 +193,20 @@
                             <img src="{{ asset('assets/img/FuturEd.png') }}" alt="FUTURED">
                         </div>
                     </div>
-
-                    <div class="panel mt-4">
+                </div>
+            </div>
+            <!-- Panel centrado debajo del contenido principal -->
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-center">
+                    <div class="panel panel-centered mx-auto">
                         <div class="panel-header">
                             <strong>Panel de Análisis</strong>
                             <span class="badge-live">En vivo</span>
                         </div>
                         <div class="p-3">
-                            <div class="row g-3">
+                            <div class="row g-3 justify-content-center">
                                 <div class="col-6 col-md-3">
-                                    <div class="metric">
+                                    <div class="metric text-center">
                                         <div class="d-flex align-items-center gap-2">
                                             <i class="fa-solid fa-triangle-exclamation text-warning"></i>
                                             <span>Alertas Activas</span>
@@ -191,7 +216,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <div class="metric">
+                                    <div class="metric text-center">
                                         <div class="d-flex align-items-center gap-2">
                                             <i class="fa-regular fa-circle-check text-success"></i>
                                             <span>Retención</span>
@@ -201,7 +226,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <div class="metric">
+                                    <div class="metric text-center">
                                         <div class="d-flex align-items-center gap-2">
                                             <i class="fa-solid fa-user-group text-primary"></i>
                                             <span>Estudiantes en Riesgo</span>
@@ -211,7 +236,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <div class="metric">
+                                    <div class="metric text-center">
                                         <div class="d-flex align-items-center gap-2">
                                             <i class="fa-solid fa-chart-column text-info"></i>
                                             <span>Intervenciones</span>
@@ -222,17 +247,7 @@
                                 </div>
                             </div>
 
-                            <!-- Mini gráfico decorativo -->
-                            <div class="mt-3">
-                                <div class="d-flex align-items-end justify-content-between" style="height:120px">
-                                    <div style="width:14%;height:40%;background:linear-gradient(0deg,#d7fbe1,#9ae6b4);border-radius:10px"></div>
-                                    <div style="width:14%;height:60%;background:linear-gradient(0deg,#d7fbe1,#86efac);border-radius:10px"></div>
-                                    <div style="width:14%;height:50%;background:linear-gradient(0deg,#d7fbe1,#86efac);border-radius:10px"></div>
-                                    <div style="width:14%;height:75%;background:linear-gradient(0deg,#d7fbe1,#4ade80);border-radius:10px"></div>
-                                    <div style="width:14%;height:58%;background:linear-gradient(0deg,#d7fbe1,#86efac);border-radius:10px"></div>
-                                    <div style="width:14%;height:85%;background:linear-gradient(0deg,#d7fbe1,#22c55e);border-radius:10px"></div>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>

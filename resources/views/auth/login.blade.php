@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Sistema de Tutorías</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <script>
+        (function(){
+            var src='{{ asset('assets/img/FuturEd2.png') }}';
+            var link=document.querySelector('link[rel="icon"]');
+            if(!link){ link=document.createElement('link'); link.rel='icon'; document.head.appendChild(link); }
+            var c=document.createElement('canvas'); var s=64; c.width=s; c.height=s; var ctx=c.getContext('2d');
+            ctx.beginPath(); ctx.arc(s/2, s/2, s/2, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+            var img=new Image(); img.onload=function(){ ctx.drawImage(img, 0, 0, s, s); link.href=c.toDataURL('image/png'); };
+            img.src=src;
+        })();
+    </script>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -288,14 +302,11 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i>Ingresar
                 </button>
-                <a href="{{ route('register') }}" class="btn btn-outline">
-                    <i class="fas fa-user-plus"></i>Registrarse
-                </a>
             </div>
         </form>
         
         <div class="register-link">
-            ¿No tienes una cuenta? <a href="{{ route('register') }}">Regístrate aquí</a>
+            ¿No tienes una cuenta?, Acude con el director de carrera
         </div>
         
         <div class="footer-text">
