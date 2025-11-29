@@ -26,33 +26,57 @@ class DashboardController extends Controller
 
    public function dashboard()
 {
-    // Número total de alumnos asignados al tutor
-    $totalAlumnos = Alumno::where('id_users', auth()->id())->count();
+    // Grupos asignados al tutor
+    $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id']);
+    $grupoIds = $gruposAsignados->map(fn($g) => (string) $g->_id)->toArray();
 
-    // Obtener IDs de alumnos asignados al tutor
-    $alumnoIds = Alumno::where('id_users', auth()->id())
-        ->get()
-        ->map(function ($alumno) {
-            return (string) $alumno->_id;
-        })->toArray();
+    // Alumnos del tutor: preferir por grupo, si no, por asignación directa
+    $alumnosQuery = Alumno::query();
+    if (!empty($grupoIds)) {
+        $alumnosQuery->whereIn('id_grupo', $grupoIds);
+    } else {
+        $alumnosQuery->where('id_users', auth()->id());
+    }
+    $alumnos = $alumnosQuery->get(['_id', 'nombre', 'id_grupo', 'id_users']);
+    $totalAlumnos = $alumnos->count();
 
-    // Número de asesorías programadas (futuras)
-    $asesoriasActivas = Asesoria::whereIn('alumno_id', $alumnoIds)
-        ->whereRaw(['fecha' => ['$gte' => Carbon::now()->startOfDay()->toDateTimeString()]])
-        ->count();
+    // IDs de alumnos para filtrar asesorías
+    $alumnoIds = $alumnos->map(fn($a) => (string) $a->_id)->toArray();
+
+    // Asesorías del tutor
+    $asesorias = !empty($alumnoIds)
+        ? Asesoria::whereIn('alumno_id', $alumnoIds)->get(['_id', 'alumno_id', 'fecha', 'tema'])
+        : collect();
+
+    $ahora = Carbon::now();
+
+    // Contar asesorías futuras (programadas)
+    $asesoriasActivas = $asesorias->filter(function($a) use ($ahora) {
+        $fecha = is_string($a->fecha)
+            ? (str_contains($a->fecha, 'T') ? Carbon::createFromFormat('Y-m-d\TH:i', $a->fecha) : Carbon::parse($a->fecha))
+            : Carbon::parse($a->fecha);
+        return $fecha->gte($ahora->startOfDay());
+    })->count();
+
+    // Eventos próximos (siguiente 30 días)
+    $limite = Carbon::now()->addDays(30);
+    $eventosProximos = $asesorias->filter(function($a) use ($ahora, $limite) {
+        $fecha = is_string($a->fecha)
+            ? (str_contains($a->fecha, 'T') ? Carbon::createFromFormat('Y-m-d\TH:i', $a->fecha) : Carbon::parse($a->fecha))
+            : Carbon::parse($a->fecha);
+        return $fecha->between($ahora, $limite);
+    })->count();
 
     // Depuración
-    \Log::info('Dashboard debug', [
+    \Log::info('Dashboard tutor', [
         'user_id' => auth()->id(),
+        'grupos' => $grupoIds,
         'totalAlumnos' => $totalAlumnos,
-        'alumnoIds' => $alumnoIds,
-        'alumnos' => Alumno::where('id_users', auth()->id())->get(['_id', 'nombre', 'id_users'])->toArray(),
-        'asesorias' => Asesoria::whereIn('alumno_id', $alumnoIds)
-            ->whereRaw(['fecha' => ['$gte' => Carbon::now()->startOfDay()->toDateTimeString()]])
-            ->get()->toArray(),
+        'asesoriasActivas' => $asesoriasActivas,
+        'eventosProximos' => $eventosProximos,
     ]);
 
-    return view('tutor.dashboard', compact('totalAlumnos', 'asesoriasActivas'));
+    return view('tutor.dashboard', compact('totalAlumnos', 'asesoriasActivas', 'eventosProximos'));
 }
 
     public function calendario(Request $request)
@@ -70,34 +94,32 @@ class DashboardController extends Controller
         $calendarDays = [];
         $events = [];
 
-        $asesorias = Asesoria::with('alumno')->get();
+        // Limitar eventos a alumnos del tutor
+        $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id']);
+        $grupoIds = $gruposAsignados->map(fn($g) => (string) $g->_id)->toArray();
+        $alumnosQuery = Alumno::query();
+        if (!empty($grupoIds)) { $alumnosQuery->whereIn('id_grupo', $grupoIds); }
+        else { $alumnosQuery->where('id_users', auth()->id()); }
+        $alumnoIds = $alumnosQuery->get(['_id'])->map(fn($a) => (string) $a->_id)->toArray();
+
+        $asesorias = !empty($alumnoIds)
+            ? Asesoria::with('alumno')->whereIn('alumno_id', $alumnoIds)->get()
+            : collect();
         $eventsDetails = [];
-        $monthStr = str_pad($month, 2, '0', STR_PAD_LEFT);
+
         foreach ($asesorias as $asesoria) {
-            if (is_string($asesoria->fecha)) {
-                $date = Carbon::createFromFormat('Y-m-d\TH:i', $asesoria->fecha);
-                if ($date->year == $year && $date->month == $month) {
-                    $eventDate = $date->toDateString();
-                    $events[] = $eventDate;
-                    $alumnoNombre = $asesoria->alumno ? $asesoria->alumno->nombre . ' ' . $asesoria->alumno->apellido_paterno : null;
-                    $eventsDetails[] = [
-                        'fecha' => $eventDate,
-                        'tema' => $asesoria->tema,
-                        'alumno_nombre' => $alumnoNombre,
-                    ];
-                }
-            } else {
-                $date = Carbon::parse($asesoria->fecha);
-                if ($date->year == $year && $date->month == $month) {
-                    $eventDate = $date->toDateString();
-                    $events[] = $eventDate;
-                    $alumnoNombre = $asesoria->alumno ? $asesoria->alumno->nombre . ' ' . $asesoria->alumno->apellido_paterno : null;
-                    $eventsDetails[] = [
-                        'fecha' => $eventDate,
-                        'tema' => $asesoria->tema,
-                        'alumno_nombre' => $alumnoNombre,
-                    ];
-                }
+            $date = is_string($asesoria->fecha)
+                ? (str_contains($asesoria->fecha, 'T') ? Carbon::createFromFormat('Y-m-d\TH:i', $asesoria->fecha) : Carbon::parse($asesoria->fecha))
+                : Carbon::parse($asesoria->fecha);
+            if ($date->year == $year && $date->month == $month) {
+                $eventDate = $date->toDateString();
+                $events[] = $eventDate;
+                $alumnoNombre = $asesoria->alumno ? $asesoria->alumno->nombre . ' ' . $asesoria->alumno->apellido_paterno : null;
+                $eventsDetails[] = [
+                    'fecha' => $eventDate,
+                    'tema' => $asesoria->tema,
+                    'alumno_nombre' => $alumnoNombre,
+                ];
             }
         }
 
@@ -149,14 +171,21 @@ class DashboardController extends Controller
 
     public function asesorias(Request $request)
     {
-        $query = Asesoria::query();
+        // Limitar asesorías a alumnos del tutor
+        $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id']);
+        $grupoIds = $gruposAsignados->map(fn($g) => (string) $g->_id)->toArray();
+        $alumnosQuery = Alumno::query();
+        if (!empty($grupoIds)) { $alumnosQuery->whereIn('id_grupo', $grupoIds); }
+        else { $alumnosQuery->where('id_users', auth()->id()); }
+        $alumnos = $alumnosQuery->get();
+        $alumnoIds = $alumnos->map(fn($a) => (string) $a->_id)->toArray();
 
+        $query = Asesoria::query()->whereIn('alumno_id', $alumnoIds);
         if ($request->has('fecha_filtro') && $request->fecha_filtro != '') {
             $query->where('fecha', '>=', $request->fecha_filtro);
         }
-
         $asesorias = $query->with('alumno')->get();
-        $alumnos = Alumno::all();
+
         return view('tutor.asesorias', compact('asesorias', 'alumnos'));
     }
 
