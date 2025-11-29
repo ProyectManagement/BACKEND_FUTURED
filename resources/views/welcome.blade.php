@@ -20,6 +20,12 @@
             img.src=src;
         })();
     </script>
+    <script>
+        (function(){
+            var t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
@@ -30,6 +36,12 @@
             --text: #0b1321;
             --muted: #5b677a;
             --panel-bg: #0f1a26;
+        }
+        :root[data-theme="dark"] {
+            --bg: #0b1220;
+            --text: #e5e7eb;
+            --muted: #9aa4b2;
+            --panel-bg: #0b1220;
         }
 
         * { box-sizing: border-box; }
@@ -79,6 +91,8 @@
             font-weight: 600;
             background: #fff;
         }
+        .btn-theme { border: 1px solid #d1fae5; color: var(--text); padding: 12px 22px; border-radius: 12px; font-weight: 600; background: #fff; }
+        [data-theme="dark"] .btn-theme { background: #1f2937; border-color: #374151; color: var(--text); }
 
         /* Tarjeta grande con logo */
         .brand-card {
@@ -114,6 +128,9 @@
             box-shadow: 0 14px 30px rgba(0,0,0,0.08);
             overflow: hidden;
         }
+        [data-theme="dark"] .panel { background: #111827; box-shadow: 0 14px 30px rgba(0,0,0,0.35); }
+        [data-theme="dark"] .metric small { color: #9aa4b2; }
+        [data-theme="dark"] .metric { border-color: #374151; }
         .panel-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 16px 18px; border-bottom: 1px solid #eef3ef;
@@ -165,9 +182,7 @@
                         <a href="{{ route('login') }}" class="btn btn-login">
                             <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Iniciar Sesión
                         </a>
-                        <a href="#" class="btn btn-demo">
-                            <i class="fa-regular fa-calendar-check me-2"></i> Solicitar Demo
-                        </a>
+                        <button class="btn btn-theme" id="welcomeThemeToggle"><i class="fas fa-moon me-2"></i>Modo Oscuro</button>
                     </div>
 
                     <div class="row mt-5 gx-4 gy-3 stats">
@@ -260,5 +275,18 @@
             © {{ date('Y') }} FuturEd • Prediciendo el futuro estudiantil.
         </div>
     </footer>
+    <script>
+        (function(){
+            var toggle = document.getElementById('welcomeThemeToggle');
+            if(!toggle) return;
+            var applyTheme = function(t){
+                document.documentElement.setAttribute('data-theme', t);
+                toggle.innerHTML = t === 'dark' ? '<i class="fas fa-sun me-2"></i>Modo Claro' : '<i class="fas fa-moon me-2"></i>Modo Oscuro';
+            };
+            var saved = localStorage.getItem('theme') || 'light';
+            applyTheme(saved);
+            toggle.addEventListener('click', function(){ var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', next); applyTheme(next); });
+        })();
+    </script>
 </body>
 </html>

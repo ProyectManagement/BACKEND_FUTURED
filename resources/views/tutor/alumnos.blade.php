@@ -15,6 +15,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
     <script>(function(){var src='{{ asset('assets/img/FuturEd2.png') }}';var l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l);}var c=document.createElement('canvas');var s=64;c.width=s;c.height=s;var x=c.getContext('2d');x.beginPath();x.arc(s/2,s/2,s/2,0,Math.PI*2);x.closePath();x.clip();var i=new Image();i.onload=function(){x.drawImage(i,0,0,s,s);l.href=c.toDataURL('image/png');};i.src=src;})();</script>
+    <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
     
     <style>
         :root {
@@ -32,14 +33,24 @@
             --border: #e2e8f0;
             --shadow-lg: 0 12px 24px rgba(22, 163, 74, 0.12);
             --shadow-card: 0 10px 20px rgba(22, 163, 74, 0.08);
+            --bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --chip-bg: #f1f5f9;
+        }
+        :root[data-theme="dark"] {
+            --text-primary: #e5e7eb;
+            --text-secondary: #9aa4b2;
+            --border: #1f2937;
+            --bg: #0b1220;
+            --panel-bg: #0b1220;
+            --chip-bg: #0f172a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: radial-gradient(circle at 0% 0%, #f0fdf4 0%, #ffffff 40%),
-                        radial-gradient(circle at 100% 0%, #f0fdf4 0%, #ffffff 40%);
+            background: var(--bg);
             min-height: 100vh; color: var(--text-primary); overflow-x: hidden;
         }
 
@@ -52,7 +63,7 @@
         }
 
         /* Header */
-        .main-header { background: #fff; border-bottom: 1px solid #eef2f7; padding: 1rem 0; position: sticky; top:0; z-index: 1000; box-shadow: 0 8px 16px rgba(16,185,129,.06); }
+        .main-header { background: var(--panel-bg); border-bottom: 1px solid var(--border); padding: 1rem 0; position: sticky; top:0; z-index: 1000; box-shadow: 0 8px 16px rgba(16,185,129,.06); }
         .header-title { color: var(--text-primary); font-weight: 800; font-size: 1.8rem; margin: 0; letter-spacing: -0.5px; }
         .header-subtitle { color: var(--text-secondary); font-size: .95rem; margin: 0; }
 
@@ -60,7 +71,7 @@
         .header-title, .header-subtitle { display: none !important; }
 
         /* Navigation */
-        .nav-pills .nav-link { color: #0f172a; background: #f1f5f9; border-radius: 999px; padding: .7rem 1.2rem; margin: 0 .25rem; font-weight: 600; transition: all .2s ease; border: 1px solid #e2e8f0; }
+        .nav-pills .nav-link { color: var(--text-primary); background: var(--chip-bg); border-radius: 999px; padding: .7rem 1.2rem; margin: 0 .25rem; font-weight: 600; transition: all .2s ease; border: 1px solid var(--border); }
         .nav-pills .nav-link:hover { background: #e2fbe8; border-color: #bbf7d0; color: var(--green-800); }
         .nav-pills .nav-link.active { background: var(--primary-gradient); color: #fff; border-color: transparent; box-shadow: 0 10px 20px rgba(22,163,74,.25); }
 
@@ -70,13 +81,13 @@
 
         /* Main Content */
         .main-content { margin-top: 2rem; padding-bottom: 3rem; }
-        .content-card { background: #fff; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow-lg); border: 1px solid #eef2f7; }
+        .content-card { background: var(--panel-bg); border-radius: 24px; padding: 2rem; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
         .page-title { font-weight: 800; font-size: 2.2rem; margin-bottom: .5rem; background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .page-subtitle { color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 2rem; }
 
         /* Alumnos grid */
         .alumnos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
-        .alumno-card { background: #fff; border-radius: 18px; padding: 1.25rem; border: 1px solid #e6f3ea; box-shadow: var(--shadow-card); transition: transform .2s ease, box-shadow .2s ease; position: relative; overflow: hidden; }
+        .alumno-card { background: var(--panel-bg); border-radius: 18px; padding: 1.25rem; border: 1px solid var(--border); box-shadow: var(--shadow-card); transition: transform .2s ease, box-shadow .2s ease; position: relative; overflow: hidden; }
         .alumno-card::before { content: ""; position: absolute; left: 0; top: 0; width: 6px; height: 100%; background: var(--primary-gradient); opacity: .25; }
         .alumno-card:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(22,163,74,.14); }
 

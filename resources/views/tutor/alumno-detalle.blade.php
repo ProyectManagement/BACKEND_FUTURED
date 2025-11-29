@@ -15,6 +15,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
     <script>(function(){var src='{{ asset('assets/img/FuturEd2.png') }}';var l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l);}var c=document.createElement('canvas');var s=64;c.width=s;c.height=s;var x=c.getContext('2d');x.beginPath();x.arc(s/2,s/2,s/2,0,Math.PI*2);x.closePath();x.clip();var i=new Image();i.onload=function(){x.drawImage(i,0,0,s,s);l.href=c.toDataURL('image/png');};i.src=src;})();</script>
+    <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
     
     <style>
         :root {
@@ -38,11 +39,13 @@
             box-sizing: border-box;
         }
 
+        :root { --bg:#f8fafc; --panel-bg:#fff; --text:#0b1321; --border:#e2e8f0; }
+        :root[data-theme="dark"] { --bg:#0b1220; --panel-bg:#0b1220; --text:#e5e7eb; --border:#1f2937; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background: var(--bg);
             min-height: 100vh;
-            color: var(--text-primary);
+            color: var(--text);
             overflow-x: hidden;
         }
 

@@ -25,14 +25,24 @@
             --muted: #5b677a;
             --border: #e8f1ea;
             --shadow: 0 14px 28px rgba(16, 185, 129, 0.08);
+            --bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --chip-bg: #f7fbf8;
+        }
+        :root[data-theme="dark"] {
+            --text: #e5e7eb;
+            --muted: #9aa4b2;
+            --border: #374151;
+            --shadow: 0 14px 28px rgba(0,0,0,.35);
+            --bg: #0b1220;
+            --panel-bg: #111827;
+            --chip-bg: #1f2937;
         }
 
         * { box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background:
-                radial-gradient(circle at 1px 1px, rgba(16,185,129,.08) 1px, transparent 0);
-            background-size: 24px 24px;
+            background: var(--bg);
             min-height: 100vh;
             color: var(--text);
             overflow-x: hidden;
@@ -41,20 +51,21 @@
 
         /* Header */
         .main-header {
-            background: #fff;
+            background: var(--panel-bg);
             border-bottom: 1px solid var(--border);
             padding: 1rem 0;
             position: sticky; top: 0; z-index: 1000;
             box-shadow: 0 8px 24px rgba(0,0,0,0.05);
             margin-bottom: 2rem;
         }
+        [data-theme="dark"] .main-header { box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
         .header-title { font-weight: 800; font-size: 1.8rem; color: var(--text); margin: 0; }
         .header-subtitle { color: var(--muted); font-size: .95rem; margin: 0; }
 
         /* Nav pills */
         .nav-pills .nav-link {
             color: var(--text);
-            background: #f7fbf8;
+            background: var(--chip-bg);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: .6rem 1.2rem;
@@ -68,6 +79,8 @@
             border-color: transparent;
             box-shadow: 0 10px 20px rgba(22,163,74,.25);
         }
+        [data-theme="dark"] .nav-pills .nav-link { background: #1f2937; border-color: #374151; }
+        [data-theme="dark"] .nav-pills .nav-link:hover { background: #111827; border-color: #4b5563; }
 
         /* Logout */
         .logout-btn {
@@ -76,6 +89,8 @@
             box-shadow: 0 10px 20px rgba(22,163,74,.25);
         }
         .logout-btn:hover { filter: brightness(1.05); }
+        .theme-toggle { background: #f7fbf8; border: 1px solid var(--border); color: var(--text); padding: .6rem 1.2rem; border-radius: 12px; font-weight: 600; }
+        [data-theme="dark"] .theme-toggle { background: #1f2937; border-color: #374151; color: var(--text); }
 
         /* Main */
         .container { max-width: 1200px; }
@@ -84,7 +99,7 @@
         /* Cards */
         .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px,1fr)); gap: 1.5rem; }
         .card {
-            background: #fff;
+            background: var(--panel-bg);
             border: 1px solid var(--border);
             border-radius: 20px;
             padding: 2rem;
@@ -98,6 +113,7 @@
         .card:nth-child(2) h3::before { content: '📚'; }
         .card:nth-child(3) h3::before { content: '📅'; }
         .card p { color: var(--muted); font-weight: 500; }
+        [data-theme="dark"] .card { border-color: #374151; box-shadow: var(--shadow); }
 
         .card .btn {
             background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
@@ -113,12 +129,13 @@
     <style>
         .chatbot-bubble { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1050; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 14px 28px rgba(22,163,74,.28); cursor: pointer; }
         .chatbot-bubble:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(22,163,74,.35); }
-        .chatbot-panel { position: fixed; bottom: 96px; right: 1.5rem; width: 380px; max-height: 70vh; background: #fff; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.18); border: 1px solid var(--border); overflow: hidden; z-index: 1050; display: none; }
+        .chatbot-panel { position: fixed; bottom: 96px; right: 1.5rem; width: 380px; max-height: 70vh; background: var(--panel-bg); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.18); border: 1px solid var(--border); overflow: hidden; z-index: 1050; display: none; }
         .chatbot-panel.open { display: block; }
         .chatbot-panel-header { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; }
         .chatbot-close { background: transparent; border: none; color: #fff; font-size: 1.1rem; }
         .chatbot-iframe { width: 100%; height: calc(70vh - 56px); border: 0; }
         @media (max-width: 768px) { .chatbot-panel { width: 92vw; right: .75rem; bottom: 88px; } .chatbot-bubble { right: .75rem; bottom: .75rem; } }
+        [data-theme="dark"] .chatbot-panel { background: #111827; border-color: #374151; }
     </style>
 </head>
 <body>
@@ -170,20 +187,23 @@
                     </ul>
                 </nav>
 
-                <div class="dropdown d-none d-lg-block">
-                    <button class="btn logout-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle me-2"></i> {{ strtoupper(auth()->user()->nombre ?? 'CUENTA') }}
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ route('tutor.perfil') }}"><i class="fas fa-id-badge me-2"></i>Mi perfil</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</button>
-                            </form>
-                        </li>
-                    </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="theme-toggle d-none d-lg-block" id="themeToggle"><i class="fas fa-moon me-2"></i>Oscuro</button>
+                    <div class="dropdown d-none d-lg-block">
+                        <button class="btn logout-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-2"></i> {{ strtoupper(auth()->user()->nombre ?? 'CUENTA') }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('tutor.perfil') }}"><i class="fas fa-id-badge me-2"></i>Mi perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -222,6 +242,7 @@
                             </a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.perfil') }}"><i class="fas fa-user"></i></a></li>
+                        <li class="nav-item"><button class="nav-link" id="themeToggleMobile"><i class="fas fa-moon"></i></button></li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
@@ -292,9 +313,20 @@
                 });
             });
 
-            // Add fade-in effect to main content
             const container = document.querySelector('.container');
             container.classList.add('fade-in');
+
+            const toggle = document.getElementById('themeToggle');
+            const toggleMobile = document.getElementById('themeToggleMobile');
+            const applyTheme = (t) => {
+                document.documentElement.setAttribute('data-theme', t);
+                if (toggle) toggle.innerHTML = t === 'dark' ? '<i class="fas fa-sun me-2"></i>Claro' : '<i class="fas fa-moon me-2"></i>Oscuro';
+                if (toggleMobile) toggleMobile.innerHTML = t === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            };
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+            if (toggle) toggle.addEventListener('click', function(){ const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', next); applyTheme(next); });
+            if (toggleMobile) toggleMobile.addEventListener('click', function(){ const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', next); applyTheme(next); });
         });
     </script>
     <button id="chatbotBubble" class="chatbot-bubble" aria-label="Abrir ChatBot"><i class="fas fa-robot"></i></button>

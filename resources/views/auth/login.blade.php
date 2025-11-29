@@ -19,7 +19,10 @@
             img.src=src;
         })();
     </script>
+    <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
     <style>
+        :root { --text:#0b1321; --muted:#475569; --border:#e2e8f0; --panel-bg:#fff; }
+        :root[data-theme="dark"] { --text:#e5e7eb; --muted:#9aa4b2; --border:#1f2937; --panel-bg:#0b1220; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0; 
@@ -31,6 +34,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            color: var(--text);
         }
         
         /* Overlay para mejorar legibilidad del contenido */
@@ -46,7 +50,7 @@
         }
         
         .login-container {
-            background: white;
+            background: var(--panel-bg);
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -104,7 +108,7 @@
         .form-label {
             display: block;
             margin-bottom: 8px;
-            color: #495057;
+            color: var(--muted);
             font-weight: 500;
             font-size: 0.95rem;
         }

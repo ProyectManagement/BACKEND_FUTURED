@@ -11,19 +11,21 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
     <script>(function(){var src='{{ asset('assets/img/FuturEd2.png') }}';var l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l);}var c=document.createElement('canvas');var s=64;c.width=s;c.height=s;var x=c.getContext('2d');x.beginPath();x.arc(s/2,s/2,s/2,0,Math.PI*2);x.closePath();x.clip();var i=new Image();i.onload=function(){x.drawImage(i,0,0,s,s);l.href=c.toDataURL('image/png');};i.src=src;})();</script>
+    <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
     <style>
         :root { --green:#22c55e; --green-dark:#16a34a; --text:#0b1321; --muted:#475569; --border:#e2e8f0; }
         *{box-sizing:border-box}
-        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#f8fafc;min-height:100vh;color:var(--text)}
-        .main-header{background:#fff;border-bottom:1px solid var(--border);padding:1rem 0;position:sticky;top:0;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+        :root[data-theme="dark"] { --text:#e5e7eb; --muted:#9aa4b2; --border:#1f2937; }
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg, #f8fafc);min-height:100vh;color:var(--text)}
+        .main-header{background:var(--panel-bg, #fff);border-bottom:1px solid var(--border);padding:1rem 0;position:sticky;top:0;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.06)}
         .header-title{font-weight:800;font-size:1.8rem;margin:0;color:var(--text)}
         .header-subtitle{color:var(--muted);font-size:.95rem;margin:0}
-        .nav-pills .nav-link{color:var(--text);background:#f1f5f9;border-radius:999px;padding:.7rem 1.2rem;margin:0 .25rem;font-weight:600;border:1px solid var(--border)}
+        .nav-pills .nav-link{color:var(--text);background:var(--chip-bg, #f1f5f9);border-radius:999px;padding:.7rem 1.2rem;margin:0 .25rem;font-weight:600;border:1px solid var(--border)}
         .nav-pills .nav-link:hover{background:#e2fbe8;border-color:#bbf7d0;color:#166534}
         .nav-pills .nav-link.active{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border-color:transparent;box-shadow:0 10px 20px rgba(22,163,74,.25)}
         .account-btn{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;padding:.6rem 1.2rem;border-radius:12px;font-weight:700;box-shadow:0 10px 20px rgba(22,163,74,.25)}
         .account-btn:focus{box-shadow:0 0 0 .25rem rgba(34,197,94,.35)}
-        .profile-card{background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:0 12px 24px rgba(0,0,0,.06);padding:2rem}
+        .profile-card{background:var(--panel-bg, #fff);border:1px solid var(--border);border-radius:20px;box-shadow:0 12px 24px rgba(0,0,0,.06);padding:2rem}
         .page-title{font-weight:800;font-size:2rem;margin-bottom:.5rem;background:linear-gradient(135deg,var(--green),var(--green-dark));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
         .form-label{font-weight:600;color:#0f172a}
         .btn-primary{background:linear-gradient(135deg,var(--green),var(--green-dark));border:none;border-radius:12px;font-weight:700}

@@ -11,14 +11,17 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
     <script>(function(){var src='{{ asset('assets/img/FuturEd2.png') }}';var l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l);}var c=document.createElement('canvas');var s=64;c.width=s;c.height=s;var x=c.getContext('2d');x.beginPath();x.arc(s/2,s/2,s/2,0,Math.PI*2);x.closePath();x.clip();var i=new Image();i.onload=function(){x.drawImage(i,0,0,s,s);l.href=c.toDataURL('image/png');};i.src=src;})();</script>
+    <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
     <style>
+        :root { --text:#0b1321; --muted:#475569; --border:#e2e8f0; --bg:#f8fafc; --panel-bg:#fff; }
+        :root[data-theme="dark"] { --text:#e5e7eb; --muted:#9aa4b2; --border:#1f2937; --bg:#0b1220; --panel-bg:#0b1220; }
+        body{background:var(--bg);color:var(--text)}
         .nav-link.active { background-color: #28a745; color: white !important; }
-        .card-custom { border: none; text-align: center; padding: 20px; margin: 10px; }
-        .card-custom.blue { background-color: #007bff; }
-        .card-custom.green { background-color: #28a745; }
-        .card-custom.yellow { background-color: #ffc107; }
-        .card-custom.red { background-color: #dc3545; }
-        .card-custom { color: white; }
+        .card-custom { border: none; text-align: center; padding: 20px; margin: 10px; background: var(--panel-bg); color: var(--text); }
+        .card-custom.blue { background-color: #007bff; color: #fff; }
+        .card-custom.green { background-color: #28a745; color: #fff; }
+        .card-custom.yellow { background-color: #ffc107; color: #fff; }
+        .card-custom.red { background-color: #dc3545; color: #fff; }
         .navbar-nav { flex-grow: 1; }
         .logout-form { margin-left: auto; }
         @media (max-width: 992px) {

@@ -15,6 +15,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
     <script>(function(){var src='{{ asset('assets/img/FuturEd2.png') }}';var l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l);}var c=document.createElement('canvas');var s=64;c.width=s;c.height=s;var x=c.getContext('2d');x.beginPath();x.arc(s/2,s/2,s/2,0,Math.PI*2);x.closePath();x.clip();var i=new Image();i.onload=function(){x.drawImage(i,0,0,s,s);l.href=c.toDataURL('image/png');};i.src=src;})();</script>
+    <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
     
     <style>
         :root {
@@ -30,6 +31,18 @@
             --text-secondary: #6b7280;
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --chip-bg: #ecfdf5;
+        }
+        :root[data-theme="dark"] {
+            --text-primary: #e5e7eb;
+            --text-secondary: #9aa4b2;
+            --glass-bg: rgba(17,24,39,0.9);
+            --glass-border: #1f2937;
+            --bg: #0b1220;
+            --panel-bg: #0b1220;
+            --chip-bg: #0f172a;
         }
 
         * {
@@ -40,10 +53,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f8fafc;
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 22px 22px;
-            background-position: 0 0, 11px 11px;
+            background: var(--bg);
             min-height: 100vh;
             color: var(--text-primary);
             overflow-x: hidden;
@@ -72,7 +82,7 @@
 
         /* Header Styles */
         .main-header {
-            background: #ffffff;
+            background: var(--panel-bg);
             border-bottom: 1px solid var(--glass-border);
             padding: 1rem 0;
             position: sticky;
@@ -98,8 +108,8 @@
 
         /* Navigation Styles */
         .nav-pills .nav-link {
-            color: #065f46;
-            background: #ecfdf5;
+            color: var(--text-primary);
+            background: var(--chip-bg);
             border-radius: 50px;
             padding: 0.7rem 1.5rem;
             margin: 0 0.2rem;
@@ -107,7 +117,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            border: 1px solid #d1fae5;
+            border: 1px solid var(--glass-border);
         }
 
         .nav-pills .nav-link::before {
@@ -169,7 +179,7 @@
             border-radius: 24px;
             padding: 2rem;
             box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--glass-border);
             margin-bottom: 2rem;
             animation: slideUp 0.6s ease-out;
         }
