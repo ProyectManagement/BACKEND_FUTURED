@@ -129,12 +129,12 @@
     <style>
         .chatbot-bubble { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1050; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; display: flex; align-items: center; justify-content: center; border: none; box-shadow: 0 14px 28px rgba(22,163,74,.28); cursor: pointer; }
         .chatbot-bubble:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(22,163,74,.35); }
-        .chatbot-panel { position: fixed; bottom: 96px; right: 1.5rem; width: 380px; max-height: 70vh; background: var(--panel-bg); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.18); border: 1px solid var(--border); overflow: hidden; z-index: 1050; display: none; }
+        .chatbot-panel { position: fixed; bottom: 96px; right: 1.5rem; width: 430px; height: 80vh; background: var(--panel-bg); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.18); border: 1px solid var(--border); overflow: hidden; z-index: 1050; display: none; }
         .chatbot-panel.open { display: block; }
-        .chatbot-panel-header { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1rem; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; }
+        .chatbot-panel-header { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: .75rem 1rem; background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; }
         .chatbot-close { background: transparent; border: none; color: #fff; font-size: 1.1rem; }
-        .chatbot-iframe { width: 100%; height: calc(70vh - 56px); border: 0; }
-        @media (max-width: 768px) { .chatbot-panel { width: 92vw; right: .75rem; bottom: 88px; } .chatbot-bubble { right: .75rem; bottom: .75rem; } }
+        .chatbot-iframe { width: 100%; height: calc(100% - 56px); border: 0; }
+        @media (max-width: 768px) { .chatbot-panel { width: 94vw; height: 84vh; right: .75rem; bottom: 88px; } .chatbot-bubble { right: .75rem; bottom: .75rem; } }
         [data-theme="dark"] .chatbot-panel { background: #111827; border-color: #374151; }
     </style>
 </head>

@@ -45,15 +45,18 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
             min-height: 100vh;
             color: var(--text);
-            overflow-x: hidden;
+            overflow: hidden;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         body::before {
@@ -139,9 +142,9 @@
         }
 
         .main-content { 
-            margin-top: 0;
+            margin: 0;
             padding: 0;
-            height: calc(100vh - 80px); 
+            flex: 1; 
             display: flex; 
             align-items: stretch;
             justify-content: stretch;
@@ -150,7 +153,7 @@
         .chat-container { 
             background: var(--panel-bg);
             backdrop-filter: none;
-            border-radius: 0;
+            border-radius: 12px;
             box-shadow: none;
             border: 1px solid var(--border);
             width: 100%; 
@@ -170,11 +173,11 @@
         .chat-box { 
             flex: 1; 
             overflow-y: auto; 
-            padding: 1.5rem; 
+            padding: 1rem; 
             background: var(--panel-bg);
             display: flex; 
             flex-direction: column; 
-            gap: 1rem; 
+            gap: .8rem; 
         }
         
         .chat-box::-webkit-scrollbar { width: 6px; }
@@ -243,12 +246,13 @@
         }
 
         .chat-input { 
-            padding: 1.5rem 2rem; 
+            padding: .8rem 1rem; 
             background: var(--panel-bg); 
             border-top: 1px solid var(--border); 
             display: flex; 
-            gap: 1rem; 
+            gap: .8rem; 
             align-items: center; 
+            margin: 0; 
         }
         
         .chat-input input { 
@@ -280,8 +284,8 @@
             background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); 
             border: none; 
             color: white; 
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             padding: 0;
             border-radius: 50%; 
             font-weight: 600; 
