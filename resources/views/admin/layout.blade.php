@@ -52,8 +52,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.index') ? 'active' : '' }}" href="{{ route('admin.index') }}">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.dashboard') ? 'active' : '' }}" href="{{ route('admin.carrera.dashboard', ['carrera_id' => request('carrera_id'), 'periodo' => request('periodo')]) }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.dashboard') ? 'active' : '' }}" href="{{ route('admin.carrera.dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.estudiantes') ? 'active' : '' }}" href="{{ route('admin.carrera.estudiantes', ['carrera_id' => request('carrera_id')]) }}">Estudiantes</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}" href="{{ route('users.index') }}">Usuarios</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.grupos.asignaciones') ? 'active' : '' }}" href="{{ route('admin.grupos.asignaciones') }}">Grupos (Asignar)</a></li>
@@ -68,6 +67,10 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             @if(optional(optional(auth()->user())->role)->nombre === 'Tutor')
                                 <li><a class="dropdown-item" href="{{ route('tutor.perfil') }}"><i class="fas fa-id-card"></i> Mi perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            @endif
+                            @if(optional(optional(auth()->user())->role)->nombre === 'Administrador')
+                                <li><a class="dropdown-item" href="{{ route('admin.perfil') }}"><i class="fas fa-id-card"></i> Mi perfil</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             @endif
                             <li>

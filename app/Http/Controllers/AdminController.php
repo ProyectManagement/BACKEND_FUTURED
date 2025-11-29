@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Grupo;
 use App\Models\Role;
 use MongoDB\BSON\ObjectId;
@@ -22,11 +23,7 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $userCount = User::count();
-        $reportCount = Reporte::count();
-        $pendingCount = 0;
-        $messageCount = 0;
-        return view('admin.index', compact('userCount', 'reportCount', 'pendingCount', 'messageCount'));
+        return redirect()->route('admin.carrera.dashboard');
     }
 
     public function reportes()
@@ -315,7 +312,6 @@ foreach ($alumnoIds as $s) {
                 ? User::where('id_rol', $roleTutor->_id)->whereIn('_id', $tutoresIds)->count()
                 : User::where('id_rol', $roleTutor->_id)->count()
         ) : 0;
-        $periodo = (string)$request->input('periodo', '2024-2');
         $variacionEstudiantes = null;
         $variacionDocentes = null;
         $predPorGrupo = !empty($grupoNombres)
@@ -457,7 +453,7 @@ foreach ($alumnoIds as $s) {
         }
 
         return view('admin.carrera.dashboard', compact(
-            'carreras', 'carreraId', 'carreraNombre', 'periodo', 'totalEstudiantes', 'tutoresCount', 'variacionEstudiantes', 'variacionDocentes', 'distribucionGrupo', 'categorias', 'retencionActual', 'comparativa', 'riesgoPorGrupo'
+            'carreras', 'carreraId', 'carreraNombre', 'totalEstudiantes', 'tutoresCount', 'variacionEstudiantes', 'variacionDocentes', 'distribucionGrupo', 'categorias', 'retencionActual', 'comparativa', 'riesgoPorGrupo'
         ));
     }
 
@@ -712,5 +708,43 @@ foreach ($alumnoIds as $s) {
         $p = trim((string)($a->apellido_paterno ?? ''));
         $m = trim((string)($a->apellido_materno ?? ''));
         return trim($n.' '.$p.' '.$m);
+    }
+
+    public function perfil()
+    {
+        $user = auth()->user();
+        return view('admin.perfil', compact('user'));
+    }
+
+    public function actualizarPerfil(Request $request)
+    {
+        $user = auth()->user();
+
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255',
+            'app' => 'required|string|max:255',
+            'apm' => 'required|string|max:255',
+            'correo' => ['required', 'email', 'unique:users,correo,' . $user->_id . ',_id'],
+            'contraseña' => 'nullable|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $data = [
+            'nombre' => $request->input('nombre'),
+            'app' => $request->input('app'),
+            'apm' => $request->input('apm'),
+            'correo' => $request->input('correo'),
+        ];
+
+        if ($request->filled('contraseña')) {
+            $data['contraseña'] = Hash::make($request->input('contraseña'));
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.perfil')->with('success', 'Perfil actualizado correctamente');
     }
 }

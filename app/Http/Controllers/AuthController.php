@@ -88,7 +88,7 @@ class AuthController extends Controller
     \Log::info('Rol del usuario: ' . ($role ? $role->nombre : 'No encontrado'));
 
     if ($role && $role->nombre === 'Administrador') {
-        return redirect()->route('admin.index');
+        return redirect()->route('admin.carrera.dashboard');
     }
     if ($role && $role->nombre === 'Tutor') {
         return redirect()->route('tutor.dashboard');

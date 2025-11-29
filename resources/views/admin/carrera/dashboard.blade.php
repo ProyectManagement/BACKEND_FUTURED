@@ -5,15 +5,9 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
     <div>
         <h3 class="mb-1">Dashboard Directivo</h3>
-        <small class="text-muted">{{ $carreraNombre ?? 'Todas las carreras' }} • Periodo {{ $periodo }}</small>
+        <small class="text-muted">{{ $carreraNombre ?? 'Todas las carreras' }}</small>
     </div>
     <form method="GET" action="{{ route('admin.carrera.dashboard') }}" class="d-flex gap-2">
-        <select name="periodo" class="form-select form-select-sm" style="min-width: 120px;">
-            @php($periodos = ['2024-1','2024-2','2025-1'])
-            @foreach($periodos as $p)
-                <option value="{{ $p }}" {{ $periodo === $p ? 'selected' : '' }}>{{ $p }}</option>
-            @endforeach
-        </select>
         <select name="carrera_id" class="form-select form-select-sm" style="min-width: 240px;">
             <option value="">Todas las carreras</option>
             @foreach($carreras as $c)
@@ -72,38 +66,7 @@
     <!-- Se elimina la tarjeta de "Sin riesgo aparente" -->
 
     <div class="row">
-        <div class="col-md-6">
-            <div class="card"><div class="card-body">
-                <h5>Riesgo por grupo</h5>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Grupo</th>
-                                <th class="text-danger">Alto</th>
-                                <th class="text-warning">Medio</th>
-                                <th class="text-success">Leve</th>
-                                <th>Sin riesgo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($riesgoPorGrupo as $grupo => $r)
-                                <tr>
-                                    <td>{{ $grupo }}</td>
-                                    <td class="text-danger">{{ $r['alto'] }}</td>
-                                    <td class="text-warning">{{ $r['medio'] }}</td>
-                                    <td class="text-success">{{ $r['leve'] }}</td>
-                                    <td>{{ $r['sin'] }}</td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="5">No hay datos</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div></div>
-        </div>
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card"><div class="card-body">
                 <h5>Distribución por grupo</h5>
                 <div class="list-group">

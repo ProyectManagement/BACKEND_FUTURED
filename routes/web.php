@@ -51,6 +51,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/estudiantes', [AdminController::class, 'carreraEstudiantes'])->name('admin.carrera.estudiantes');
         });
 
+        Route::get('/perfil', [AdminController::class, 'perfil'])->name('admin.perfil');
+        Route::post('/perfil', [AdminController::class, 'actualizarPerfil'])->name('admin.perfil.update');
+
         // Gestión de usuarios
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
