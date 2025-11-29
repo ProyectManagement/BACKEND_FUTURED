@@ -39,26 +39,27 @@ Route::middleware(['auth'])->group(function () {
     // General Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Admin Routes (User Management, accessible to authenticated users)
-    Route::prefix('admin')->group(function () {
+    // (eliminado) redirección simple de /admin
+
+    // Admin Panel Routes (restricted to Administrador role)
+    Route::prefix('admin')->middleware(['role:Administrador'])->group(function () {
+        // Inicio del panel
+        Route::get('/', [AdminController::class, 'index'])->name('admin.index');
+        // Dashboard y vistas de carrera
+        Route::prefix('carrera')->group(function () {
+            Route::get('/dashboard', [AdminController::class, 'carreraDashboard'])->name('admin.carrera.dashboard');
+            Route::get('/estudiantes', [AdminController::class, 'carreraEstudiantes'])->name('admin.carrera.estudiantes');
+        });
+
+        // Gestión de usuarios
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+
+        // Asignar tutor a grupo
         Route::post('/grupos/{id}/asignar-tutor', [AdminController::class, 'asignarTutorGrupo'])->name('admin.grupos.asignarTutor');
-    });
-
-    // Admin Panel Routes (restricted to Administrador role)
-    Route::prefix('admin')->middleware(['role:Administrador'])->group(function () {
-        Route::get('/', [AdminController::class, 'index'])->name('admin.index');
-
-        // Panel de Carrera (Directivo)
-        Route::prefix('carrera')->group(function () {
-            Route::get('/dashboard', [AdminController::class, 'carreraDashboard'])->name('admin.carrera.dashboard');
-            Route::get('/tutores', [AdminController::class, 'carreraTutores'])->name('admin.carrera.tutores');
-            Route::get('/estudiantes', [AdminController::class, 'carreraEstudiantes'])->name('admin.carrera.estudiantes');
-        });
 
         // Rutas de Reportes
         Route::prefix('reportes')->group(function () {
@@ -92,13 +93,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/instituciones', [AdminController::class, 'instituciones'])->name('admin.instituciones');
         Route::get('/roles', [AdminController::class, 'roles'])->name('admin.roles');
         
-        // Vistas de Monitoreo y Alertas
-        Route::get('/alertas', [AdminController::class, 'alertas'])->name('admin.alertas');
-        Route::get('/monitoreo', [AdminController::class, 'monitoreo'])->name('admin.monitoreo');
-        
-        // Vistas de Recursos
-        Route::get('/base-conocimiento', [AdminController::class, 'baseConocimiento'])->name('admin.base-conocimiento');
-        Route::get('/recursos-intervencion', [AdminController::class, 'recursosIntervencion'])->name('admin.recursos-intervencion');
+        // Recursos adicionales pueden agregarse aquí si son necesarios
     });
 
     // Tutor Panel Routes

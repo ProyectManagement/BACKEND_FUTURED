@@ -52,19 +52,32 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.dashboard') ? 'active' : '' }}" href="{{ route('admin.carrera.dashboard') }}">Dashboard</a></li>
-                        <li class="nav-item"><span class="nav-link" style="pointer-events:none;">Carrera</span></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.tutores') ? 'active' : '' }}" href="{{ route('admin.carrera.tutores') }}">Monitoreo de Tutores</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.estudiantes') ? 'active' : '' }}" href="{{ route('admin.carrera.estudiantes') }}">Estudiantes</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.index') ? 'active' : '' }}" href="{{ route('admin.index') }}">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.dashboard') ? 'active' : '' }}" href="{{ route('admin.carrera.dashboard', ['carrera_id' => request('carrera_id'), 'periodo' => request('periodo')]) }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.carrera.estudiantes') ? 'active' : '' }}" href="{{ route('admin.carrera.estudiantes', ['carrera_id' => request('carrera_id')]) }}">Estudiantes</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}" href="{{ route('users.index') }}">Usuarios</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.grupos.asignaciones') ? 'active' : '' }}" href="{{ route('admin.grupos.asignaciones') }}">Grupos (Asignar)</a></li>
+                        
                     </ul>
                     
-                    <!-- Formulario de logout mejorado -->
-                    <form method="POST" action="{{ route('logout') }}" class="logout-form">
-                        @csrf
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    <div class="logout-form dropdown">
+                        <button class="btn btn-success dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user"></i>
+                            {{ strtoupper(optional(auth()->user())->nombre ?? 'Usuario') }}
                         </button>
-                    </form>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            @if(optional(optional(auth()->user())->role)->nombre === 'Tutor')
+                                <li><a class="dropdown-item" href="{{ route('tutor.perfil') }}"><i class="fas fa-id-card"></i> Mi perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            @endif
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>

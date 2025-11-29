@@ -94,4 +94,45 @@
 @endif
 
 {{-- Búsqueda manual: el formulario se envía solo al pulsar el botón --}}
+@push('scripts')
+<script>
+$(function(){
+    const carreraSel = $('select[name="carrera_id"]');
+    const grupoSel = $('select[name="grupo_id"]');
+    const tutorSel = $('select[name="tutor_id"]');
+    let gruposCache = [];
+
+    function resetSelect(sel, placeholder){
+        sel.empty();
+        sel.append(new Option(placeholder, ''));
+    }
+
+    carreraSel.on('change', function(){
+        const carreraId = $(this).val();
+        resetSelect(grupoSel, 'Todos');
+        resetSelect(tutorSel, 'Todos');
+        if(!carreraId){ return; }
+        $.getJSON(`{{ url('/carrera') }}/${carreraId}/grupos`, function(items){
+            gruposCache = items || [];
+            gruposCache.forEach(function(it){
+                grupoSel.append(new Option(it.nombre, it._id));
+            });
+        });
+    });
+
+    grupoSel.on('change', function(){
+        const gid = $(this).val();
+        resetSelect(tutorSel, 'Todos');
+        if(!gid){ return; }
+        const g = gruposCache.find(function(x){ return x._id === gid; });
+        if(g && g.tutor){
+            const name = `${g.tutor.nombre} ${g.tutor.app ?? ''} ${g.tutor.apm ?? ''}`.trim();
+            const opt = new Option(name, g.tutor._id);
+            tutorSel.append(opt);
+            tutorSel.val(g.tutor._id);
+        }
+    });
+});
+</script>
+@endpush
 @endsection

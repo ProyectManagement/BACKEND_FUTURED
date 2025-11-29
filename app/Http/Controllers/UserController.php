@@ -12,7 +12,8 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('role')->get();
+        $roleTutor = Role::where('nombre', 'Tutor')->first();
+        $users = $roleTutor ? User::with('role')->where('id_rol', $roleTutor->_id)->get() : collect();
         $roles = Role::all();
         return view('admin.users', compact('users', 'roles'));
     }

@@ -24,9 +24,8 @@ class AdminController extends Controller
     {
         $userCount = User::count();
         $reportCount = Reporte::count();
-        $pendingCount = 0; // Ajusta según tu lógica
-        $messageCount = 0; // Ajusta según tu lógica
-
+        $pendingCount = 0;
+        $messageCount = 0;
         return view('admin.index', compact('userCount', 'reportCount', 'pendingCount', 'messageCount'));
     }
 
@@ -256,14 +255,23 @@ class AdminController extends Controller
         $carreraId = $request->input('carrera_id');
 
         $carreras = Carrera::all(['_id', 'nombre']);
+        $carreraNombre = null;
+        if ($carreraId) {
+            $sel = $carreras->first(function($c) use ($carreraId) { return (string)$c->_id === (string)$carreraId; });
+            $carreraNombre = optional($sel)->nombre;
+        }
         $alumnosQuery = Alumno::query();
         $gruposQuery = Grupo::query();
         $encuestasQuery = Encuesta::query();
 
         if ($carreraId) {
-            $alumnosQuery->where('id_carrera', $carreraId);
-            $gruposQuery->where('id_carrera', $carreraId);
-            $encuestasQuery->where('id_carrera', $carreraId);
+            $cidCandidates = [$carreraId];
+            if (is_string($carreraId) && preg_match('/^[a-f0-9]{24}$/i', $carreraId)) {
+                try { $cidCandidates[] = new ObjectId($carreraId); } catch (\Throwable $e) { /* ignore */ }
+            }
+            $alumnosQuery->whereIn('id_carrera', $cidCandidates);
+            $gruposQuery->whereIn('id_carrera', $cidCandidates);
+            $encuestasQuery->whereIn('id_carrera', $cidCandidates);
         }
 
         $alumnos = $alumnosQuery->with('grupo')->get();
@@ -277,8 +285,10 @@ class AdminController extends Controller
         // Niveles de atención basados en la última predicción
         // Intentar cruzar por matrícula y si no hay resultados, por id_alumno
         $matriculas = $alumnos->pluck('matricula')->filter()->values()->toArray();
-        $predPorMatricula = !empty($matriculas)
-            ? Prediccion::whereIn('matricula', $matriculas)->orderBy('fecha', 'desc')->get()
+        $matriculasSan = array_map(function($m){ return preg_replace('/\D+/', '', (string)$m); }, $matriculas);
+        $matriculasQuery = array_values(array_unique(array_merge($matriculas, $matriculasSan)));
+        $predPorMatricula = !empty($matriculasQuery)
+            ? Prediccion::whereIn('matricula', $matriculasQuery)->orderBy('fecha', 'desc')->get()
             : collect();
 
         $alumnoIds = $alumnos->map(fn($a) => (string)$a->_id)->toArray();
@@ -296,13 +306,65 @@ foreach ($alumnoIds as $s) {
             ? Prediccion::whereIn('id_alumno', $alumnoIds)->orderBy('fecha', 'desc')->get()
             : collect();
 
-        $usarMatricula = $predPorMatricula->count() > 0;
-        $predBase = $usarMatricula ? $predPorMatricula : ($predPorIdObj->count() > 0 ? $predPorIdObj : $predPorIdStr);
-        $ultimaPorClave = $predBase
-            ->groupBy($usarMatricula ? 'matricula' : 'id_alumno')
-            ->map(function ($items) {
-                return $items->sortByDesc('fecha')->first();
-            });
+        $gruposCarrera = $gruposQuery->get(['nombre', 'id_tutor']);
+        $grupoNombres = $gruposCarrera->pluck('nombre')->filter()->values()->toArray();
+        $roleTutor = Role::where('nombre', 'Tutor')->first();
+        $tutoresIds = $gruposCarrera->pluck('id_tutor')->filter()->unique()->values()->toArray();
+        $tutoresCount = $roleTutor ? (
+            $carreraId
+                ? User::where('id_rol', $roleTutor->_id)->whereIn('_id', $tutoresIds)->count()
+                : User::where('id_rol', $roleTutor->_id)->count()
+        ) : 0;
+        $periodo = (string)$request->input('periodo', '2024-2');
+        $variacionEstudiantes = null;
+        $variacionDocentes = null;
+        $predPorGrupo = !empty($grupoNombres)
+            ? Prediccion::whereIn('nombre_grupo', $grupoNombres)->orderBy('fecha', 'desc')->get()
+            : collect();
+
+        // Construir mapas de última predicción por cada clave posible
+        $mapMatricula = $predPorMatricula
+            ->groupBy(function ($p) { return preg_replace('/\D+/', '', (string)($p->matricula ?? '')); })
+            ->map(function ($items) { return $items->sortByDesc('fecha')->first(); });
+        $mapIdObj = $predPorIdObj
+            ->groupBy(function ($p) { return (string)($p->id_alumno); })
+            ->map(function ($items) { return $items->sortByDesc('fecha')->first(); });
+        $mapIdStr = $predPorIdStr
+            ->groupBy(function ($p) { return (string)$p->id_alumno; })
+            ->map(function ($items) { return $items->sortByDesc('fecha')->first(); });
+
+        $mapGrupoNombre = $predPorGrupo
+            ->groupBy(function ($p) {
+                $g = $this->normalizaGrupo((string)($p->nombre_grupo ?? ''));
+                $n = $this->normalizaNombre((string)($p->nombre_completo ?? ''));
+                return $g.'|'.$n;
+            })
+            ->map(function ($items) { return $items->sortByDesc('fecha')->first(); });
+
+        // Fallback adicional: por nombre completo normalizado
+        $nombresAlumnos = $alumnos->map(function($a){ return $this->normalizaNombre($this->nombreCompletoAlumno($a)); })
+            ->filter()->values()->toArray();
+        $predPorNombre = !empty($nombresAlumnos)
+            ? Prediccion::all()->filter(function($p){ return !empty($p->nombre_completo); })
+                ->map(function($p){ $p->nombre_completo_norm = $this->normalizaNombre($p->nombre_completo); return $p; })
+                ->filter(function($p) use ($nombresAlumnos){ return in_array($p->nombre_completo_norm, $nombresAlumnos, true); })
+            : collect();
+        $mapNombre = $predPorNombre
+            ->groupBy(function($p){ return (string)$p->nombre_completo_norm; })
+            ->map(function ($items) { return $items->sortByDesc('fecha')->first(); });
+
+        $predAll = Prediccion::all();
+        $grupoKeys = $gruposQuery->get(['nombre'])->pluck('nombre')->filter()->map(fn($g) => $this->normalizaGrupo($g))->values()->toArray();
+        $predFiltradas = $predAll->filter(function($p) use ($grupoKeys, $matriculasQuery, $alumnoIds, $objectIds) {
+            $g = $this->normalizaGrupo((string)($p->nombre_grupo ?? ''));
+            if ($g !== '' && in_array($g, $grupoKeys, true)) return true;
+            $m = preg_replace('/\D+/', '', (string)($p->matricula ?? ''));
+            if ($m !== '' && in_array($m, $matriculasQuery, true)) return true;
+            $idStr = (string)($p->id_alumno ?? '');
+            if ($idStr !== '' && in_array($idStr, $alumnoIds, true)) return true;
+            foreach ($objectIds as $oid) { if (($p->id_alumno ?? null) == $oid) return true; }
+            return false;
+        });
 
         // Categorías por umbral numérico de riesgo
         $categorias = [
@@ -332,33 +394,26 @@ foreach ($alumnoIds as $s) {
             ],
         ];
 
-        foreach ($ultimaPorClave as $pred) {
-            $valor = $pred->riesgo ?? null;
-            // Convertir textual a aproximación numérica si aplica
-            if (!is_null($valor) && !is_numeric($valor)) {
-                $v = strtolower((string)$valor);
-                if (in_array($v, ['alto', 'critico', 'crítico'], true)) $valor = 80;
-                elseif (in_array($v, ['medio', 'seguimiento'], true)) $valor = 60;
-                elseif (in_array($v, ['leve', 'bajo', 'normal'], true)) $valor = 40;
-                else $valor = 0;
-            }
-
-            $num = is_numeric($valor) ? floatval($valor) : 0;
+        foreach ($predFiltradas as $pred) {
+            $num = $this->riesgoToNumero($pred->riesgo ?? null);
             if ($num >= 80) $categorias['alto']['count']++;
             elseif ($num >= 60) $categorias['medio']['count']++;
-            elseif ($num >= 40) $categorias['leve']['count']++;
+            elseif ($num > 0) $categorias['leve']['count']++;
             else $categorias['sin']['count']++;
         }
 
         // Porcentajes por categoría
+        // Mostrar el porcentaje respecto al total de alumnos con predicción
+        // Si no hay predicciones, se usa el total de estudiantes para evitar división por cero
+        // Base de porcentaje: total de estudiantes de la carrera seleccionada
+        $base = max($predFiltradas->count(), $totalEstudiantes);
         foreach ($categorias as $key => $cat) {
-            $categorias[$key]['percent'] = $totalEstudiantes > 0 ? round(100 * ($cat['count'] / $totalEstudiantes), 1) : 0;
+            $categorias[$key]['percent'] = $base > 0 ? round(100 * ($cat['count'] / $base), 1) : 0;
         }
 
         // Riesgo por grupo
         $riesgoPorGrupo = [];
-        foreach ($alumnos as $alumno) {
-            $grupoNombre = optional($alumno->grupo)->nombre ?? 'Sin grupo';
+        foreach ($predFiltradas->groupBy(function($p){ return (string)($p->nombre_grupo ?? 'Sin grupo'); }) as $grupoNombre => $items) {
             if (!isset($riesgoPorGrupo[$grupoNombre])) {
                 $riesgoPorGrupo[$grupoNombre] = [
                     'alto' => 0,
@@ -368,24 +423,14 @@ foreach ($alumnoIds as $s) {
                     'total' => 0,
                 ];
             }
-
-            $clave = $usarMatricula ? (string)($alumno->matricula ?? '') : (string)$alumno->_id;
-            $pred = $ultimaPorClave->get($clave);
-            $valor = $pred->riesgo ?? null;
-            if (!is_null($valor) && !is_numeric($valor)) {
-                $v = strtolower((string)$valor);
-                if (in_array($v, ['alto', 'critico', 'crítico'], true)) $valor = 80;
-                elseif (in_array($v, ['medio', 'seguimiento'], true)) $valor = 60;
-                elseif (in_array($v, ['leve', 'bajo', 'normal'], true)) $valor = 40;
-                else $valor = 0;
+            foreach ($items as $p) {
+                $num = $this->riesgoToNumero($p->riesgo ?? null);
+                if ($num >= 80) $riesgoPorGrupo[$grupoNombre]['alto']++;
+                elseif ($num >= 60) $riesgoPorGrupo[$grupoNombre]['medio']++;
+                elseif ($num > 0) $riesgoPorGrupo[$grupoNombre]['leve']++;
+                else $riesgoPorGrupo[$grupoNombre]['sin']++;
+                $riesgoPorGrupo[$grupoNombre]['total']++;
             }
-            $num = is_numeric($valor) ? floatval($valor) : 0;
-
-            if ($num >= 80) $riesgoPorGrupo[$grupoNombre]['alto']++;
-            elseif ($num >= 60) $riesgoPorGrupo[$grupoNombre]['medio']++;
-            elseif ($num >= 40) $riesgoPorGrupo[$grupoNombre]['leve']++;
-            else $riesgoPorGrupo[$grupoNombre]['sin']++;
-            $riesgoPorGrupo[$grupoNombre]['total']++;
         }
 
         // Ordenar por total descendente para una lectura más clara
@@ -412,7 +457,7 @@ foreach ($alumnoIds as $s) {
         }
 
         return view('admin.carrera.dashboard', compact(
-            'carreras', 'carreraId', 'totalEstudiantes', 'distribucionGrupo', 'categorias', 'retencionActual', 'comparativa', 'riesgoPorGrupo'
+            'carreras', 'carreraId', 'carreraNombre', 'periodo', 'totalEstudiantes', 'tutoresCount', 'variacionEstudiantes', 'variacionDocentes', 'distribucionGrupo', 'categorias', 'retencionActual', 'comparativa', 'riesgoPorGrupo'
         ));
     }
 
@@ -425,7 +470,13 @@ foreach ($alumnoIds as $s) {
         $tutores = $roleTutor ? User::where('id_rol', $roleTutor->_id)->get(['_id', 'nombre', 'app', 'apm', 'correo']) : collect();
 
         // Grupos de la carrera
-        $grupos = $carreraId ? Grupo::where('id_carrera', $carreraId)->get(['_id', 'nombre', 'id_tutor']) : Grupo::all(['_id', 'nombre', 'id_tutor']);
+        $grupos = $carreraId ? (function() use ($carreraId) {
+            $cidCandidates = [$carreraId];
+            if (is_string($carreraId) && preg_match('/^[a-f0-9]{24}$/i', $carreraId)) {
+                try { $cidCandidates[] = new ObjectId($carreraId); } catch (\Throwable $e) { /* ignore */ }
+            }
+            return Grupo::whereIn('id_carrera', $cidCandidates)->get(['_id', 'nombre', 'id_tutor']);
+        })() : Grupo::all(['_id', 'nombre', 'id_tutor']);
         $grupoIds = $grupos->map(fn($g) => (string)$g->_id)->toArray();
 
         // Alumnos por grupo
@@ -452,13 +503,22 @@ foreach ($alumnoIds as $s) {
 }
             $predPorIdObj = !empty($objectIdsTutor) ? Prediccion::whereIn('id_alumno', $objectIdsTutor)->orderBy('fecha', 'desc')->get() : collect();
             $predPorIdStr = !empty($alumnoIds) ? Prediccion::whereIn('id_alumno', $alumnoIds)->orderBy('fecha', 'desc')->get() : collect();
-            $usarMatriculaTutor = $predPorMatricula->count() > 0;
-            $predBaseTutor = $usarMatriculaTutor ? $predPorMatricula : ($predPorIdObj->count() > 0 ? $predPorIdObj : $predPorIdStr);
-            $ultima = $predBaseTutor
-                ->groupBy($usarMatriculaTutor ? 'matricula' : 'id_alumno')
+            // Construir mapas por clave para el conjunto del tutor
+            $mapMatriculaTutor = $predPorMatricula
+                ->groupBy(function ($p) { return (string)($p->matricula ?? ''); })
                 ->map(fn($items) => $items->sortByDesc('fecha')->first());
-            $tienePendientes = $ultima->contains(function ($p) {
-                return $this->mapNivelAtencion($p->riesgo ?? null) === 'critico';
+            $mapIdObjTutor = $predPorIdObj
+                ->groupBy(function ($p) { return (string)($p->id_alumno); })
+                ->map(fn($items) => $items->sortByDesc('fecha')->first());
+            $mapIdStrTutor = $predPorIdStr
+                ->groupBy(function ($p) { return (string)$p->id_alumno; })
+                ->map(fn($items) => $items->sortByDesc('fecha')->first());
+
+            $tienePendientes = $alumnosTutor->contains(function ($a) use ($mapMatriculaTutor, $mapIdStrTutor, $mapIdObjTutor) {
+                $claveMat = (string)($a->matricula ?? '');
+                $claveId = (string)$a->_id;
+                $p = $mapMatriculaTutor->get($claveMat) ?? $mapIdStrTutor->get($claveId) ?? $mapIdObjTutor->get($claveId);
+                return $this->mapNivelAtencion(optional($p)->riesgo ?? null) === 'critico';
             });
 
             $porTutor[] = [
@@ -484,7 +544,13 @@ foreach ($alumnoIds as $s) {
         $hasFilters = ($carreraId || $grupoId || $tutorId || $q !== '');
 
         $carreras = Carrera::all(['_id', 'nombre']);
-        $grupos = $carreraId ? Grupo::where('id_carrera', $carreraId)->get(['_id', 'nombre']) : Grupo::all(['_id', 'nombre']);
+        $grupos = $carreraId ? (function() use ($carreraId) {
+            $cidCandidates = [$carreraId];
+            if (is_string($carreraId) && preg_match('/^[a-f0-9]{24}$/i', $carreraId)) {
+                try { $cidCandidates[] = new ObjectId($carreraId); } catch (\Throwable $e) { /* ignore */ }
+            }
+            return Grupo::whereIn('id_carrera', $cidCandidates)->get(['_id', 'nombre', 'id_tutor']);
+        })() : Grupo::all(['_id', 'nombre', 'id_tutor']);
         $roleTutor = Role::where('nombre', 'Tutor')->first();
         $tutores = $roleTutor ? User::where('id_rol', $roleTutor->_id)->get(['_id', 'nombre', 'app', 'apm']) : collect();
 
@@ -505,9 +571,24 @@ foreach ($alumnoIds as $s) {
         }
 
         $query = Alumno::query()->with(['carrera', 'grupo.tutor', 'user']);
-        if ($carreraId) $query->where('id_carrera', $carreraId);
+        if ($carreraId) {
+            $cidCandidates = [$carreraId];
+            if (is_string($carreraId) && preg_match('/^[a-f0-9]{24}$/i', $carreraId)) {
+                try { $cidCandidates[] = new ObjectId($carreraId); } catch (\Throwable $e) { /* ignore */ }
+            }
+            $query->whereIn('id_carrera', $cidCandidates);
+        }
         if ($grupoId) $query->where('id_grupo', $grupoId);
-        if ($tutorId) $query->where('id_users', $tutorId);
+        if ($tutorId) {
+            $grupoIdsByTutor = $grupos->filter(fn($g) => (string)$g->id_tutor === (string)$tutorId)
+                ->map(fn($g) => (string)$g->_id)->toArray();
+            $query->where(function ($sub) use ($tutorId, $grupoIdsByTutor) {
+                $sub->orWhere('id_users', $tutorId);
+                if (!empty($grupoIdsByTutor)) {
+                    $sub->orWhereIn('id_grupo', $grupoIdsByTutor);
+                }
+            });
+        }
 
         if ($q !== '') {
             $query->where(function ($sub) use ($q) {
@@ -533,15 +614,22 @@ foreach ($alumnoIds as $s) {
 }
         $predPorIdObj = !empty($objectIds) ? Prediccion::whereIn('id_alumno', $objectIds)->orderBy('fecha', 'desc')->get() : collect();
         $predPorIdStr = !empty($alumnoIds) ? Prediccion::whereIn('id_alumno', $alumnoIds)->orderBy('fecha', 'desc')->get() : collect();
-        $usarMatricula = $predPorMatricula->count() > 0;
-        $predBase = $usarMatricula ? $predPorMatricula : ($predPorIdObj->count() > 0 ? $predPorIdObj : $predPorIdStr);
-        $ultimaPred = $predBase
-            ->groupBy($usarMatricula ? 'matricula' : 'id_alumno')
+        // Construir mapas y obtener riesgo robustamente
+        $mapMatricula = $predPorMatricula
+            ->groupBy(function ($p) { return (string)($p->matricula ?? ''); })
+            ->map(fn($items) => $items->sortByDesc('fecha')->first());
+        $mapIdObj = $predPorIdObj
+            ->groupBy(function ($p) { return (string)($p->id_alumno); })
+            ->map(fn($items) => $items->sortByDesc('fecha')->first());
+        $mapIdStr = $predPorIdStr
+            ->groupBy(function ($p) { return (string)$p->id_alumno; })
             ->map(fn($items) => $items->sortByDesc('fecha')->first());
 
-        $listado = $alumnos->map(function ($a) use ($ultimaPred, $usarMatricula) {
-            $clave = $usarMatricula ? (string)($a->matricula ?? '') : (string)$a->_id;
-            $riesgo = $this->mapNivelAtencion(optional($ultimaPred->get($clave))->riesgo ?? null);
+        $listado = $alumnos->map(function ($a) use ($mapMatricula, $mapIdStr, $mapIdObj) {
+            $claveMat = (string)($a->matricula ?? '');
+            $claveId = (string)$a->_id;
+            $p = $mapMatricula->get($claveMat) ?? $mapIdStr->get($claveId) ?? $mapIdObj->get($claveId);
+            $riesgo = $this->mapNivelAtencion(optional($p)->riesgo ?? null);
             return [
                 'alumno' => $a,
                 'riesgo' => $riesgo,
@@ -576,5 +664,53 @@ foreach ($alumnoIds as $s) {
         if (in_array($v, ['medio', 'seguimiento'], true)) return 'seguimiento';
         if (in_array($v, ['leve', 'bajo', 'normal'], true)) return 'normal';
         return 'normal';
+    }
+
+    private function riesgoToNumero($valor)
+    {
+        if (is_null($valor)) return 0.0;
+        if (is_numeric($valor)) {
+            $num = floatval($valor);
+            // Si viene como probabilidad (0..1), convertir a porcentaje
+            if ($num <= 1.0) { return max(0.0, min(100.0, $num * 100.0)); }
+            return max(0.0, min(100.0, $num));
+        }
+        $v = strtolower(trim((string)$valor));
+        // Normalizar variantes comunes
+        $v = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $v);
+        // Mapear por frases completas
+        if (in_array($v, ['alto riesgo','riesgo alto','high','high risk','critico'], true)) return 85.0;
+        if (in_array($v, ['riesgo medio','medio','medium','seguimiento'], true)) return 65.0;
+        if (in_array($v, ['riesgo leve','leve','bajo','low','normal'], true)) return 45.0;
+        if (in_array($v, ['sin riesgo','ninguno','none','no riesgo'], true)) return 0.0;
+        // Fallback usando el mapeo legacy
+        $nivel = $this->mapNivelAtencion($valor);
+        if ($nivel === 'critico') return 85.0;
+        if ($nivel === 'seguimiento') return 65.0;
+        return 45.0;
+    }
+
+    private function normalizaNombre($s)
+    {
+        $t = strtolower(trim((string)$s));
+        $t = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $t);
+        $t = preg_replace('/\s+/', ' ', $t);
+        return $t;
+    }
+
+    private function normalizaGrupo($s)
+    {
+        $t = strtolower(trim((string)$s));
+        $t = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $t);
+        $t = preg_replace('/\s+/', ' ', $t);
+        return $t;
+    }
+
+    private function nombreCompletoAlumno($a)
+    {
+        $n = trim((string)($a->nombre ?? ''));
+        $p = trim((string)($a->apellido_paterno ?? ''));
+        $m = trim((string)($a->apellido_materno ?? ''));
+        return trim($n.' '.$p.' '.$m);
     }
 }

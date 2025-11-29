@@ -17,6 +17,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        if ($user && optional($user->role)->nombre === 'Administrador') {
+            return redirect()->route('admin.carrera.dashboard');
+        }
         return redirect()->route('tutor.dashboard');
     }
 

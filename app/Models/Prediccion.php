@@ -4,8 +4,6 @@ namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model as EloquentModel;
-
 
 class Prediccion extends Eloquent
 {

@@ -195,8 +195,28 @@ class EncuestaController extends Controller
     // ✅ Método AJAX para obtener grupos por carrera
     public function getGruposPorCarrera($carreraId)
     {
-        $grupos = Grupo::where('id_carrera', new ObjectId($carreraId))->get();
-        return response()->json($grupos);
+        try {
+            $oid = new ObjectId($carreraId);
+        } catch (\Throwable $e) {
+            return response()->json([], 200);
+        }
+        $grupos = Grupo::where('id_carrera', $oid)
+            ->with(['tutor'])
+            ->get(['_id','nombre','id_tutor','id_carrera']);
+        $payload = $grupos->map(function($g){
+            return [
+                '_id' => (string)$g->_id,
+                'nombre' => $g->nombre,
+                'id_tutor' => (string)($g->id_tutor ?? ''),
+                'tutor' => $g->tutor ? [
+                    '_id' => (string)$g->tutor->_id,
+                    'nombre' => $g->tutor->nombre,
+                    'app' => $g->tutor->app,
+                    'apm' => $g->tutor->apm,
+                ] : null,
+            ];
+        })->values();
+        return response()->json($payload);
     }
 
     public function index()
