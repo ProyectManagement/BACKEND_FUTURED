@@ -21,5 +21,5 @@ jobs:
       run: composer install --no-interaction --prefer-dist
 
     - name: Generar APP_KEY
-      run: php artisan key:generate
+      run: php artisan key:generat
 
