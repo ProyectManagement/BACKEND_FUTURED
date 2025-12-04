@@ -20,8 +20,8 @@
         .main-header{background:var(--panel-bg, #fff);border-bottom:1px solid var(--border);padding:1rem 0;position:sticky;top:0;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.06)}
         .header-title{font-weight:800;font-size:1.8rem;margin:0;color:var(--text)}
         .header-subtitle{color:var(--muted);font-size:.95rem;margin:0}
-        .nav-pills .nav-link{color:var(--text);background:var(--chip-bg, #f1f5f9);border-radius:999px;padding:.7rem 1.2rem;margin:0 .25rem;font-weight:600;border:1px solid var(--border)}
-        .nav-pills .nav-link:hover{background:#e2fbe8;border-color:#bbf7d0;color:#166534}
+        .nav-pills .nav-link{color:var(--text);background:var(--chip-bg, #f1f5f9);border:1px solid var(--border);border-radius:16px;padding:.6rem 1.2rem;margin:0 .25rem;font-weight:600}
+        .nav-pills .nav-link:hover{background:#eef6f0;border-color:#d9e9dc;color:#166534}
         .nav-pills .nav-link.active{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border-color:transparent;box-shadow:0 10px 20px rgba(22,163,74,.25)}
         .account-btn{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;padding:.6rem 1.2rem;border-radius:12px;font-weight:700;box-shadow:0 10px 20px rgba(22,163,74,.25)}
         .account-btn:focus{box-shadow:0 0 0 .25rem rgba(34,197,94,.35)}
@@ -48,8 +48,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.alumnos') }}"><i class="fas fa-users me-2"></i>Alumnos</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.asesorias') }}"><i class="fas fa-chalkboard-teacher me-2"></i>Asesorías</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.calendario') }}"><i class="fas fa-calendar me-2"></i>Calendario</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('tutor.reportes') }}"><i class="fas fa-chart-bar me-2"></i>Reportes</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('tutor.chatbot') }}"><i class="fas fa-robot me-2"></i>ChatBot</a></li>
+                        
                         <li class="nav-item"><a class="nav-link active" href="{{ route('tutor.perfil') }}"><i class="fas fa-user me-2"></i>Perfil</a></li>
                     </ul>
                 </nav>
@@ -76,8 +75,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.alumnos') }}"><i class="fas fa-users"></i></a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.asesorias') }}"><i class="fas fa-chalkboard-teacher"></i></a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.calendario') }}"><i class="fas fa-calendar"></i></a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('tutor.reportes') }}"><i class="fas fa-chart-bar"></i></a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('tutor.chatbot') }}"><i class="fas fa-robot"></i></a></li>
+                        
                         <li class="nav-item"><a class="nav-link active" href="{{ route('tutor.perfil') }}"><i class="fas fa-user"></i></a></li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">

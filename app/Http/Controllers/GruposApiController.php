@@ -25,4 +25,21 @@ class GruposApiController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // Devuelve un grupo por su ID
+    public function getById($id)
+    {
+        try {
+            $grupo = $this->db->grupos->findOne(['_id' => new ObjectId($id)]);
+            if (!$grupo) {
+                return response()->json(['error' => 'Grupo no encontrado'], 404);
+            }
+            return response()->json([
+                '_id' => (string) $grupo->_id,
+                'nombre' => $grupo->nombre ?? ''
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

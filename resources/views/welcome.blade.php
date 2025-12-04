@@ -36,12 +36,16 @@
             --text: #0b1321;
             --muted: #5b677a;
             --panel-bg: #0f1a26;
+            --border: #e8f1ea;
+            --chip-bg: #f7fbf8;
         }
         :root[data-theme="dark"] {
             --bg: #0b1220;
             --text: #e5e7eb;
             --muted: #9aa4b2;
             --panel-bg: #0b1220;
+            --border: #374151;
+            --chip-bg: #1f2937;
         }
 
         * { box-sizing: border-box; }
@@ -84,15 +88,22 @@
         }
         .btn-login:hover { background: var(--green-dark); color: #fff; }
         .btn-demo {
-            border: 2px solid var(--green);
-            color: var(--green-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
             padding: 12px 22px;
             border-radius: 12px;
             font-weight: 600;
-            background: #fff;
+            background: var(--chip-bg);
         }
-        .btn-theme { border: 1px solid #d1fae5; color: var(--text); padding: 12px 22px; border-radius: 12px; font-weight: 600; background: #fff; }
-        [data-theme="dark"] .btn-theme { background: #1f2937; border-color: #374151; color: var(--text); }
+        .btn-theme {
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-weight: 600;
+            background: var(--chip-bg);
+        }
+        [data-theme="dark"] .btn-login { color: #fff; }
 
         /* Tarjeta grande con logo */
         .brand-card {
@@ -105,7 +116,7 @@
             width: 100%;
             aspect-ratio: 1/1;
             border-radius: 24px;
-            background: radial-gradient(circle at 50% 50%, rgba(34,197,94,0.2) 0, rgba(34,197,94,0.12) 45%, rgba(34,197,94,0.06) 65%, transparent 70%), #0f1a26;
+            background: radial-gradient(circle at 50% 50%, rgba(34,197,94,0.2) 0, rgba(34,197,94,0.12) 45%, rgba(34,197,94,0.06) 65%, transparent 70%), var(--panel-bg);
             display: grid;
             place-items: center;
             position: relative;

@@ -174,16 +174,7 @@
                                 <i class="fas fa-calendar me-2"></i>Calendario
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.reportes') }}">
-                                <i class="fas fa-chart-bar me-2"></i>Reportes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.chatbot') }}">
-                                <i class="fas fa-robot me-2"></i>ChatBot
-                            </a>
-                        </li>
+                        
                     </ul>
                 </nav>
 
@@ -231,16 +222,7 @@
                                 <i class="fas fa-calendar"></i>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.reportes') }}">
-                                <i class="fas fa-chart-bar"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.chatbot') }}">
-                                <i class="fas fa-robot"></i>
-                            </a>
-                        </li>
+                        
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.perfil') }}"><i class="fas fa-user"></i></a></li>
                         <li class="nav-item"><button class="nav-link" id="themeToggleMobile"><i class="fas fa-moon"></i></button></li>
                         <li class="nav-item">

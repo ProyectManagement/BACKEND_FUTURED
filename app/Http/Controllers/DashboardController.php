@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 
 class DashboardController extends Controller
 {
@@ -24,26 +26,38 @@ class DashboardController extends Controller
         return redirect()->route('tutor.dashboard');
     }
 
-   public function dashboard()
+    public function dashboard()
 {
-    // Grupos asignados al tutor
-    $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id']);
-    $grupoIds = $gruposAsignados->map(fn($g) => (string) $g->_id)->toArray();
+    $authId = auth()->id();
+    $authIdObj = (is_string($authId) && preg_match('/^[a-f\d]{24}$/i', $authId)) ? new ObjectId($authId) : $authId;
 
-    // Alumnos del tutor: preferir por grupo, si no, por asignación directa
+    $gruposAsignados = Grupo::where(function($q) use ($authIdObj, $authId) {
+        $q->where('id_tutor', $authIdObj)->orWhere('id_tutor', (string) $authId);
+    })->get(['_id']);
+
+    $grupoIdsObj = $gruposAsignados->map(function ($g) {
+        return $g->_id instanceof ObjectId ? $g->_id : (preg_match('/^[a-f\d]{24}$/i', (string)$g->_id) ? new ObjectId((string)$g->_id) : null);
+    })->filter()->values()->toArray();
+    $grupoIdsStr = $gruposAsignados->map(function ($g) { return (string) $g->_id; })->toArray();
+
     $alumnosQuery = Alumno::query();
-    if (!empty($grupoIds)) {
-        $alumnosQuery->whereIn('id_grupo', $grupoIds);
+    if (!empty($grupoIdsObj) || !empty($grupoIdsStr)) {
+        $alumnosQuery->where(function($q) use ($grupoIdsObj, $grupoIdsStr) {
+            if (!empty($grupoIdsObj)) { $q->whereIn('id_grupo', $grupoIdsObj); }
+            if (!empty($grupoIdsStr)) { $q->orWhereIn('id_grupo', $grupoIdsStr); }
+        });
     } else {
-        $alumnosQuery->where('id_users', auth()->id());
+        $alumnosQuery->where(function($q) use ($authIdObj, $authId) {
+            $q->where('id_users', $authIdObj)->orWhere('id_users', (string) $authId);
+        });
     }
     $alumnos = $alumnosQuery->get(['_id', 'nombre', 'id_grupo', 'id_users']);
     $totalAlumnos = $alumnos->count();
 
-    // IDs de alumnos para filtrar asesorías
-    $alumnoIds = $alumnos->map(fn($a) => (string) $a->_id)->toArray();
+    $alumnoIds = $alumnos->map(function ($a) {
+        return $a->_id instanceof ObjectId ? $a->_id : (preg_match('/^[a-f\d]{24}$/i', (string)$a->_id) ? new ObjectId((string)$a->_id) : (string)$a->_id);
+    })->toArray();
 
-    // Asesorías del tutor
     $asesorias = !empty($alumnoIds)
         ? Asesoria::whereIn('alumno_id', $alumnoIds)->get(['_id', 'alumno_id', 'fecha', 'tema'])
         : collect();
@@ -70,7 +84,8 @@ class DashboardController extends Controller
     // Depuración
     \Log::info('Dashboard tutor', [
         'user_id' => auth()->id(),
-        'grupos' => $grupoIds,
+        'gruposObj' => $grupoIdsObj ?? [],
+        'gruposStr' => $grupoIdsStr ?? [],
         'totalAlumnos' => $totalAlumnos,
         'asesoriasActivas' => $asesoriasActivas,
         'eventosProximos' => $eventosProximos,
@@ -93,24 +108,57 @@ class DashboardController extends Controller
         $firstDayOfMonth = $currentDate->dayOfWeek;
         $calendarDays = [];
         $events = [];
-
-        // Limitar eventos a alumnos del tutor
-        $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id']);
-        $grupoIds = $gruposAsignados->map(fn($g) => (string) $g->_id)->toArray();
-        $alumnosQuery = Alumno::query();
-        if (!empty($grupoIds)) { $alumnosQuery->whereIn('id_grupo', $grupoIds); }
-        else { $alumnosQuery->where('id_users', auth()->id()); }
-        $alumnoIds = $alumnosQuery->get(['_id'])->map(fn($a) => (string) $a->_id)->toArray();
-
-        $asesorias = !empty($alumnoIds)
-            ? Asesoria::with('alumno')->whereIn('alumno_id', $alumnoIds)->get()
-            : collect();
         $eventsDetails = [];
 
+        $authId = auth()->id();
+        $authIdObj = (is_string($authId) && preg_match('/^[a-f\d]{24}$/i', $authId)) ? new ObjectId($authId) : $authId;
+
+        $gruposAsignados = Grupo::where(function($q) use ($authIdObj, $authId) {
+            $q->where('id_tutor', $authIdObj)->orWhere('id_tutor', (string) $authId);
+        })->get(['_id']);
+
+        $grupoIdsObj = $gruposAsignados->map(function ($g) {
+            return $g->_id instanceof ObjectId ? $g->_id : (preg_match('/^[a-f\d]{24}$/i', (string)$g->_id) ? new ObjectId((string)$g->_id) : null);
+        })->filter()->values()->toArray();
+        $grupoIdsStr = $gruposAsignados->map(function ($g) { return (string) $g->_id; })->toArray();
+
+        $alumnosQuery = Alumno::query();
+        if (!empty($grupoIdsObj) || !empty($grupoIdsStr)) {
+            $alumnosQuery->where(function($q) use ($grupoIdsObj, $grupoIdsStr) {
+                if (!empty($grupoIdsObj)) { $q->whereIn('id_grupo', $grupoIdsObj); }
+                if (!empty($grupoIdsStr)) { $q->orWhereIn('id_grupo', $grupoIdsStr); }
+            });
+        } else {
+            $alumnosQuery->where(function($q) use ($authIdObj, $authId) {
+                $q->where('id_users', $authIdObj)->orWhere('id_users', (string) $authId);
+            });
+        }
+        $alumnosIdsCollection = $alumnosQuery->get(['_id']);
+        $alumnoIdsObj = $alumnosIdsCollection->map(function ($a) {
+            return $a->_id instanceof ObjectId ? $a->_id : (preg_match('/^[a-f\d]{24}$/i', (string)$a->_id) ? new ObjectId((string)$a->_id) : null);
+        })->filter()->values()->toArray();
+        $alumnoIdsStr = $alumnosIdsCollection->map(function ($a) { return (string) $a->_id; })->toArray();
+
+        $asesorias = (!empty($alumnoIdsObj) || !empty($alumnoIdsStr))
+            ? Asesoria::with('alumno')->where(function($q) use ($alumnoIdsObj, $alumnoIdsStr) {
+                if (!empty($alumnoIdsObj)) { $q->whereIn('alumno_id', $alumnoIdsObj); }
+                if (!empty($alumnoIdsStr)) { $q->orWhereIn('alumno_id', $alumnoIdsStr); }
+            })->get()
+            : collect();
+
         foreach ($asesorias as $asesoria) {
-            $date = is_string($asesoria->fecha)
-                ? (str_contains($asesoria->fecha, 'T') ? Carbon::createFromFormat('Y-m-d\TH:i', $asesoria->fecha) : Carbon::parse($asesoria->fecha))
-                : Carbon::parse($asesoria->fecha);
+            $raw = $asesoria->fecha;
+            if ($raw instanceof UTCDateTime) {
+                $date = Carbon::instance($raw->toDateTime())->setTimezone(config('app.timezone', 'UTC'));
+            } elseif (is_string($raw)) {
+                if (str_contains($raw, 'T')) {
+                    $date = Carbon::createFromFormat('Y-m-d\TH:i', $raw, 'UTC')->setTimezone(config('app.timezone', 'UTC'));
+                } else {
+                    $date = Carbon::parse($raw, 'UTC')->setTimezone(config('app.timezone', 'UTC'));
+                }
+            } else {
+                $date = Carbon::parse($raw)->setTimezone(config('app.timezone', 'UTC'));
+            }
             if ($date->year == $year && $date->month == $month) {
                 $eventDate = $date->toDateString();
                 $events[] = $eventDate;
@@ -122,6 +170,8 @@ class DashboardController extends Controller
                 ];
             }
         }
+
+        $events = array_values(array_unique($events));
 
         for ($i = 0; $i < $firstDayOfMonth; $i++) {
             $calendarDays[] = ['day' => '', 'date' => ''];
@@ -136,20 +186,36 @@ class DashboardController extends Controller
 
     public function alumnos(Request $request)
     {
-        $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id', 'nombre']);
-        $grupoIds = $gruposAsignados->map(fn($g) => (string)$g->_id)->toArray();
+        $authId = auth()->id();
+        $authIdObj = (is_string($authId) && preg_match('/^[a-f\d]{24}$/i', $authId)) ? new ObjectId($authId) : $authId;
+
+        $gruposAsignados = Grupo::where(function($q) use ($authIdObj, $authId) {
+            $q->where('id_tutor', $authIdObj)->orWhere('id_tutor', (string) $authId);
+        })->get(['_id', 'nombre']);
+        $grupoIdsObj = $gruposAsignados->map(function ($g) {
+            return $g->_id instanceof ObjectId ? $g->_id : (preg_match('/^[a-f\d]{24}$/i', (string)$g->_id) ? new ObjectId((string)$g->_id) : null);
+        })->filter()->values()->toArray();
+        $grupoIdsStr = $gruposAsignados->map(function ($g) { return (string) $g->_id; })->toArray();
 
         $grupoFiltro = $request->input('grupo');
         $query = Alumno::query()->with(['carrera', 'grupo']);
 
-        if (!empty($grupoIds)) {
-            if ($grupoFiltro && in_array($grupoFiltro, $grupoIds, true)) {
-                $query->where('id_grupo', $grupoFiltro);
+        if (!empty($grupoIdsObj) || !empty($grupoIdsStr)) {
+            if ($grupoFiltro && in_array($grupoFiltro, $grupoIdsStr, true)) {
+                $query->where(function($q) use ($grupoFiltro) {
+                    $q->where('id_grupo', new ObjectId($grupoFiltro))
+                      ->orWhere('id_grupo', (string) $grupoFiltro);
+                });
             } else {
-                $query->whereIn('id_grupo', $grupoIds);
+                $query->where(function($q) use ($grupoIdsObj, $grupoIdsStr) {
+                    if (!empty($grupoIdsObj)) { $q->whereIn('id_grupo', $grupoIdsObj); }
+                    if (!empty($grupoIdsStr)) { $q->orWhereIn('id_grupo', $grupoIdsStr); }
+                });
             }
         } else {
-            $query->where('id_users', auth()->id());
+            $query->where(function($q) use ($authIdObj, $authId) {
+                $q->where('id_users', $authIdObj)->orWhere('id_users', (string) $authId);
+            });
         }
 
         $alumnos = $query->get();
@@ -171,16 +237,49 @@ class DashboardController extends Controller
 
     public function asesorias(Request $request)
     {
-        // Limitar asesorías a alumnos del tutor
-        $gruposAsignados = Grupo::where('id_tutor', auth()->id())->get(['_id']);
-        $grupoIds = $gruposAsignados->map(fn($g) => (string) $g->_id)->toArray();
-        $alumnosQuery = Alumno::query();
-        if (!empty($grupoIds)) { $alumnosQuery->whereIn('id_grupo', $grupoIds); }
-        else { $alumnosQuery->where('id_users', auth()->id()); }
-        $alumnos = $alumnosQuery->get();
-        $alumnoIds = $alumnos->map(fn($a) => (string) $a->_id)->toArray();
+        $authId = auth()->id();
+        $authIdObj = (is_string($authId) && preg_match('/^[a-f\d]{24}$/i', $authId)) ? new ObjectId($authId) : $authId;
 
-        $query = Asesoria::query()->whereIn('alumno_id', $alumnoIds);
+        $gruposAsignados = Grupo::where(function($q) use ($authIdObj, $authId) {
+            $q->where('id_tutor', $authIdObj)->orWhere('id_tutor', (string) $authId);
+        })->get(['_id']);
+
+        $grupoIdsObj = $gruposAsignados->map(function ($g) {
+            return $g->_id instanceof ObjectId ? $g->_id : (preg_match('/^[a-f\d]{24}$/i', (string)$g->_id) ? new ObjectId((string)$g->_id) : null);
+        })->filter()->values()->toArray();
+        $grupoIdsStr = $gruposAsignados->map(function ($g) { return (string) $g->_id; })->toArray();
+
+        $alumnosQuery = Alumno::query();
+        if (!empty($grupoIdsObj) || !empty($grupoIdsStr)) {
+            $alumnosQuery->where(function($q) use ($grupoIdsObj, $grupoIdsStr) {
+                if (!empty($grupoIdsObj)) { $q->whereIn('id_grupo', $grupoIdsObj); }
+                if (!empty($grupoIdsStr)) { $q->orWhereIn('id_grupo', $grupoIdsStr); }
+            });
+        } else {
+            $alumnosQuery->where(function($q) use ($authIdObj, $authId) {
+                $q->where('id_users', $authIdObj)->orWhere('id_users', (string) $authId);
+            });
+        }
+        $alumnos = $alumnosQuery->orderBy('nombre')->get();
+
+        $search = trim($request->input('alumno', ''));
+        $alumnosFiltrados = $alumnos;
+        if ($search !== '') {
+            $alumnosFiltrados = $alumnos->filter(function($alumno) use ($search) {
+                $full = trim(($alumno->nombre ?? '').' '.($alumno->apellido_paterno ?? '').' '.($alumno->apellido_materno ?? ''));
+                return mb_stripos($full, $search) !== false;
+            });
+        }
+
+        $alumnoIdsObj = $alumnosFiltrados->map(function ($a) {
+            return $a->_id instanceof ObjectId ? $a->_id : (preg_match('/^[a-f\d]{24}$/i', (string)$a->_id) ? new ObjectId((string)$a->_id) : null);
+        })->filter()->values()->toArray();
+        $alumnoIdsStr = $alumnosFiltrados->map(function ($a) { return (string) $a->_id; })->toArray();
+
+        $query = Asesoria::query()->where(function($q) use ($alumnoIdsObj, $alumnoIdsStr) {
+            if (!empty($alumnoIdsObj)) { $q->whereIn('alumno_id', $alumnoIdsObj); }
+            if (!empty($alumnoIdsStr)) { $q->orWhereIn('alumno_id', $alumnoIdsStr); }
+        });
         if ($request->has('fecha_filtro') && $request->fecha_filtro != '') {
             $query->where('fecha', '>=', $request->fecha_filtro);
         }
@@ -197,8 +296,11 @@ class DashboardController extends Controller
             'tema' => 'required|string|max:255',
         ]);
 
+        $alumnoId = $request->alumno_id;
+        $alumnoIdObj = (is_string($alumnoId) && preg_match('/^[a-f\d]{24}$/i', $alumnoId)) ? new ObjectId($alumnoId) : $alumnoId;
+
         Asesoria::create([
-            'alumno_id' => $request->alumno_id,
+            'alumno_id' => $alumnoIdObj,
             'fecha' => $request->fecha,
             'tema' => $request->tema,
         ]);

@@ -179,6 +179,7 @@
             </div>
 
             <div class="d-flex justify-content-end mt-4">
+                <a href="{{ route('welcome') }}" class="btn btn-prev me-2">Regresar</a>
                 <button type="button" class="btn btn-next" data-next="2">Siguiente</button>
             </div>
         </fieldset>

@@ -67,13 +67,12 @@
         .header-title { color: var(--text-primary); font-weight: 800; font-size: 1.8rem; margin: 0; letter-spacing: -0.5px; }
         .header-subtitle { color: var(--text-secondary); font-size: .95rem; margin: 0; }
 
-        /* Oculta el texto superior del encabezado */
-        .header-title, .header-subtitle { display: none !important; }
+        
 
         /* Navigation */
-        .nav-pills .nav-link { color: var(--text-primary); background: var(--chip-bg); border-radius: 999px; padding: .7rem 1.2rem; margin: 0 .25rem; font-weight: 600; transition: all .2s ease; border: 1px solid var(--border); }
-        .nav-pills .nav-link:hover { background: #e2fbe8; border-color: #bbf7d0; color: var(--green-800); }
-        .nav-pills .nav-link.active { background: var(--primary-gradient); color: #fff; border-color: transparent; box-shadow: 0 10px 20px rgba(22,163,74,.25); }
+        .nav-pills .nav-link { color: var(--text-primary); background: var(--chip-bg); border: 1px solid var(--border); border-radius: 16px; padding: .6rem 1.2rem; margin: 0 .25rem; font-weight: 600; }
+        .nav-pills .nav-link:hover { background: #eef6f0; border-color: #d9e9dc; }
+        .nav-pills .nav-link.active { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border-color: transparent; box-shadow: 0 10px 20px rgba(22,163,74,.25); }
 
         /* Logout Button */
         .logout-btn { background: var(--primary-gradient); border: none; color: #fff; padding: .6rem 1.2rem; border-radius: 12px; font-weight: 700; box-shadow: 0 10px 20px rgba(22,163,74,.25); }
@@ -166,16 +165,7 @@
                                 <i class="fas fa-calendar me-2"></i>Calendario
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.reportes') }}">
-                                <i class="fas fa-chart-bar me-2"></i>Reportes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.chatbot') }}">
-                                <i class="fas fa-robot me-2"></i>ChatBot
-                            </a>
-                        </li>
+                        
                     </ul>
                 </nav>
 
@@ -220,16 +210,7 @@
                                 <i class="fas fa-calendar"></i>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.reportes') }}">
-                                <i class="fas fa-chart-bar"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{{ route('tutor.chatbot') }}">
-                                <i class="fas fa-robot"></i>
-                            </a>
-                        </li>
+                        
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.perfil') }}"><i class="fas fa-user"></i></a></li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
@@ -333,8 +314,8 @@
                                         </div>
                                     </div>
 
-                                    <div class="text-end">
-                                        <a href="{{ route('tutor.alumno-detalle', $alumno->id) }}" class="btn-details">
+                                <div class="text-end">
+                                        <a href="{{ route('tutor.alumno-detalle', (string) $alumno->_id) }}" class="btn-details">
                                             <i class="fas fa-eye me-2"></i>
                                             Ver Detalles
                                         </a>

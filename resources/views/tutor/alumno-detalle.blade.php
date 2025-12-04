@@ -19,18 +19,21 @@
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            --dark-gradient: linear-gradient(135deg, #232526 0%, #414345 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-primary: #2d3748;
-            --text-secondary: #718096;
+            --primary-gradient: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            --secondary-gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            --success-gradient: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            --info-gradient: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            --warning-gradient: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            --dark-gradient: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: #e5e7eb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --chip-bg: #ecfdf5;
         }
 
         * {
@@ -72,44 +75,32 @@
 
         /* Header Styles */
         .main-header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
+            background: var(--panel-bg);
             border-bottom: 1px solid var(--glass-border);
             padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
         }
 
         .header-title {
-            color: white;
+            color: var(--text-primary);
             font-weight: 700;
             font-size: 1.8rem;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             letter-spacing: -0.5px;
         }
 
         .header-subtitle {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
             font-size: 0.9rem;
             font-weight: 400;
             margin: 0;
         }
 
         /* Navigation Styles */
-        .nav-pills .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            background: transparent;
-            border-radius: 50px;
-            padding: 0.7rem 1.5rem;
-            margin: 0 0.2rem;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
+        .nav-pills .nav-link { color: var(--text); background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: .6rem 1.2rem; margin: 0 .25rem; font-weight: 600; }
 
         .nav-pills .nav-link::before {
             content: '';
@@ -126,36 +117,25 @@
             left: 100%;
         }
 
-        .nav-pills .nav-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
+        .nav-pills .nav-link:hover { background: #eef6f0; border-color: #d9e9dc; }
 
-        .nav-pills .nav-link.active {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
+        .nav-pills .nav-link.active { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; border-color: transparent; box-shadow: 0 10px 20px rgba(22,163,74,.25); }
 
         /* Logout Button */
         .logout-btn {
-            background: var(--secondary-gradient);
+            background: var(--primary-gradient);
             border: none;
             color: white;
             padding: 0.6rem 1.2rem;
             border-radius: 50px;
             font-weight: 500;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
         }
 
         .logout-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
             color: white;
         }
 
@@ -579,8 +559,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.reportes') }}">
-                                <i class="fas fa-chart-bar me-2"></i>Reportes
+                            <a class="nav-link" href="{{ route('tutor.perfil') }}">
+                                <i class="fas fa-user me-2"></i>Perfil
                             </a>
                         </li>
                     </ul>
@@ -627,11 +607,7 @@
                                 <i class="fas fa-calendar"></i>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tutor.reportes') }}">
-                                <i class="fas fa-chart-bar"></i>
-                            </a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('tutor.perfil') }}"><i class="fas fa-user"></i></a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('tutor.perfil') }}"><i class="fas fa-user"></i></a></li>
                         <li class="nav-item">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">

@@ -498,9 +498,36 @@
                 body: JSON.stringify({ matricula })
             });
             const data = await res.json();
+            let extra = null;
+            try {
+                const exRes = await fetch(`/api/alumnos/by-matricula/${encodeURIComponent(matricula)}`);
+                if (exRes.ok) extra = await exRes.json();
+            } catch (_) {}
+            const merged = { ...data, extra: extra || {} };
 
             setTimeout(() => {
                 if (res.ok) {
+                    const pick = (obj, paths) => {
+                        for (const p of paths) {
+                            const v = p.includes('.') ? p.split('.').reduce((o, k) => (o && o[k] != null ? o[k] : undefined), obj) : obj[p];
+                            if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
+                        }
+                        return '';
+                    };
+                    const baseNombre = pick(merged, [
+                        'nombre_completo','alumno_nombre','alumno.nombre_completo','alumnoNombre','NombreCompleto','name','nombreCompleto'
+                    ].concat(extra ? ['extra.nombre_completo'] : []));
+                    const nombreSolo = pick(merged, ['alumno.nombre','nombre','alumnoNombre','first_name','nombre_alumno'].concat(extra ? ['extra.nombre'] : []));
+                    const ap = pick(merged, ['apellido_paterno','alumno.apellido_paterno','apellidoPaterno','app','alumno.app'].concat(extra ? ['extra.apellido_paterno'] : []));
+                    const am = pick(merged, ['apellido_materno','alumno.apellido_materno','apellidoMaterno','apm','alumno.apm'].concat(extra ? ['extra.apellido_materno'] : []));
+                    let nombreCompleto = baseNombre;
+                    if (!nombreCompleto || nombreCompleto.split(/\s+/).length < 2) {
+                        nombreCompleto = [nombreSolo, ap, am].filter(Boolean).join(' ').trim();
+                    }
+                    if (!nombreCompleto) nombreCompleto = 'No disponible';
+                    const nombreGrupo = pick(merged, [
+                        'nombre_grupo','grupo_nombre','alumno_grupo','grupo','alumno.grupo.nombre','grupoNombre','nombreGrupo','group','grupo_nombre_str'
+                    ].concat(extra ? ['extra.nombre_grupo'] : [])) || 'No disponible';
                     let resultado = `
                         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; margin-top: 10px;">
                             <strong style="font-size: 16px; display: block; margin-bottom: 15px;">📋 Resultado de Predicción</strong>
@@ -512,12 +539,12 @@
                             
                             <div style="margin-bottom: 12px;">
                                 <strong style="color: rgba(255,255,255,0.8); font-size: 13px; display: block; margin-bottom: 4px;">👤 Nombre Completo:</strong>
-                                <span style="font-size: 15px;">${data.nombre_completo || 'No disponible'}</span>
+                                <span style="font-size: 15px;">${nombreCompleto}</span>
                             </div>
                             
                             <div style="margin-bottom: 12px;">
                                 <strong style="color: rgba(255,255,255,0.8); font-size: 13px; display: block; margin-bottom: 4px;">📚 Grupo:</strong>
-                                <span style="font-size: 15px;">${data.nombre_grupo || 'No disponible'}</span>
+                                <span style="font-size: 15px;">${nombreGrupo}</span>
                             </div>
                             
                             <div style="margin-bottom: 12px;">

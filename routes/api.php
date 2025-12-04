@@ -16,3 +16,4 @@ Route::get('/carreras', [CarrerasApiController::class, 'index']);
 Route::get('/grupos/{idCarrera}', [GruposApiController::class, 'getByCarrera']);
 
 Route::get('/alumnos-todos', [AlumnosApiController::class, 'index']);
+Route::get('/alumnos/by-matricula/{matricula}', [AlumnosApiController::class, 'getByMatricula']);
