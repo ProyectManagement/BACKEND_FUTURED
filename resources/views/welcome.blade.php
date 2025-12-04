@@ -182,6 +182,9 @@
                         <a href="{{ route('login') }}" class="btn btn-login">
                             <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Iniciar Sesión
                         </a>
+                        <a href="{{ url('/encuesta') }}" class="btn btn-demo">
+                            <i class="fa-solid fa-list-check me-2"></i> Encuesta
+                        </a>
                         <button class="btn btn-theme" id="welcomeThemeToggle"><i class="fas fa-moon me-2"></i>Modo Oscuro</button>
                     </div>
 

@@ -1,6 +1,17 @@
-@extends('layouts.app')
-
-@section('content')
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Prevención de Abandono Escolar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/FuturEd2.png') }}">
+    <script>(function(){var src='{{ asset('assets/img/FuturEd2.png') }}';var l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l);}var c=document.createElement('canvas');var s=64;c.width=s;c.height=s;var x=c.getContext('2d');x.beginPath();x.arc(s/2,s/2,s/2,0,Math.PI*2);x.closePath();x.clip();var i=new Image();i.onload=function(){x.drawImage(i,0,0,s,s);l.href=c.toDataURL('image/png');};i.src=src;})();</script>
+    <script>(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
 <div class="container">
     {{-- Mensajes de éxito/error --}}
     @if(session('success'))
@@ -49,7 +60,7 @@
                 <div class="col-md-6">
                     <label for="matricula" class="form-label">Matrícula*</label>
                     <input type="text" class="form-control @error('matricula') is-invalid @enderror" id="matricula" name="matricula" 
-                           value="{{ old('matricula', $datos['matricula'] ?? '') }}" required
+                           value="{{ old('matricula', $datos['matricula'] ?? '') }}" required placeholder="Ingresa tu matrícula"
                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     @error('matricula')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -61,7 +72,7 @@
                 <div class="col-md-6">
                     <label for="correo" class="form-label">Correo Institucional*</label>
                     <input type="email" class="form-control @error('correo') is-invalid @enderror" id="correo" name="correo" 
-                           value="{{ old('correo', $datos['correo'] ?? '') }}" required>
+                           value="{{ old('correo', $datos['correo'] ?? '') }}" required placeholder="Ingresa tu correo institucional">
                     @error('correo')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -71,7 +82,7 @@
                 <div class="col-md-4">
                     <label for="nombre" class="form-label">Nombre(s)*</label>
                     <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" 
-                           value="{{ old('nombre', $datos['nombre'] ?? '') }}" required>
+                           value="{{ old('nombre', $datos['nombre'] ?? '') }}" required placeholder="Ingresa tu nombre">
                     @error('nombre')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -80,7 +91,7 @@
                 <div class="col-md-4">
                     <label for="apellido_paterno" class="form-label">Apellido Paterno*</label>
                     <input type="text" class="form-control @error('apellido_paterno') is-invalid @enderror" id="apellido_paterno" name="apellido_paterno" 
-                           value="{{ old('apellido_paterno', $datos['apellido_paterno'] ?? '') }}" required>
+                           value="{{ old('apellido_paterno', $datos['apellido_paterno'] ?? '') }}" required placeholder="Ingresa tu apellido paterno">
                     @error('apellido_paterno')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -90,7 +101,7 @@
                 <div class="col-md-4">
                     <label for="apellido_materno" class="form-label">Apellido Materno*</label>
                     <input type="text" class="form-control @error('apellido_materno') is-invalid @enderror" id="apellido_materno" name="apellido_materno" 
-                           value="{{ old('apellido_materno', $datos['apellido_materno'] ?? '') }}" required>
+                           value="{{ old('apellido_materno', $datos['apellido_materno'] ?? '') }}" required placeholder="Ingresa tu apellido materno">
                     @error('apellido_materno')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -100,7 +111,7 @@
                 <div class="col-md-6">
                     <label for="id_carrera" class="form-label">Carrera*</label>
                     <select class="form-select @error('id_carrera') is-invalid @enderror" id="id_carrera" name="id_carrera" required>
-                        <option value="">Seleccione...</option>
+                        <option value="">Selecciona carrera...</option>
                         @foreach($carreras as $carrera)
                             <option value="{{ $carrera->_id }}" {{ old('id_carrera', $datos['id_carrera'] ?? '') == $carrera->_id ? 'selected' : '' }}>
                                 {{ $carrera->nombre }}
@@ -137,7 +148,7 @@
                 <div class="col-md-4">
                     <label for="curp" class="form-label">CURP*</label>
                     <input type="text" class="form-control @error('curp') is-invalid @enderror" id="curp" name="curp" 
-                           value="{{ old('curp', $datos['curp'] ?? '') }}" required
+                           value="{{ old('curp', $datos['curp'] ?? '') }}" required placeholder="Ingresa tu CURP"
                            oninput="this.value = this.value.toUpperCase()">
                     @error('curp')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -147,7 +158,7 @@
                 <div class="col-md-4">
                     <label for="genero" class="form-label">Género*</label>
                     <select class="form-select @error('genero') is-invalid @enderror" id="genero" name="genero" required>
-                        <option value="">Seleccione...</option>
+                        <option value="">Selecciona género...</option>
                         <option value="Hombre" {{ old('genero', $datos['genero'] ?? '') == 'Hombre' ? 'selected' : '' }}>Hombre</option>
                         <option value="Mujer" {{ old('genero', $datos['genero'] ?? '') == 'Mujer' ? 'selected' : '' }}>Mujer</option>
                         <option value="Otro" {{ old('genero', $datos['genero'] ?? '') == 'Otro' ? 'selected' : '' }}>Otro</option>
@@ -160,7 +171,7 @@
                 <div class="col-md-4">
                     <label for="edad" class="form-label">Edad*</label>
                     <input type="number" class="form-control @error('edad') is-invalid @enderror" id="edad" name="edad" min="15" max="50" 
-                           value="{{ old('edad', $datos['edad'] ?? '') }}" required>
+                           value="{{ old('edad', $datos['edad'] ?? '') }}" required placeholder="Ingresa tu edad">
                     @error('edad')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -183,7 +194,7 @@
                 <div class="col-md-6">
                     <label for="telefono_celular" class="form-label">Teléfono Celular*</label>
                     <input type="tel" class="form-control @error('telefono_celular') is-invalid @enderror" id="telefono_celular" name="telefono_celular" 
-                           value="{{ old('telefono_celular', $datos['telefono_celular'] ?? '') }}" required
+                           value="{{ old('telefono_celular', $datos['telefono_celular'] ?? '') }}" required placeholder="Ingresa tu teléfono celular"
                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     @error('telefono_celular')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -195,7 +206,7 @@
                 <div class="col-md-6">
                     <label for="telefono_casa" class="form-label">Teléfono de Casa</label>
                     <input type="tel" class="form-control @error('telefono_casa') is-invalid @enderror" id="telefono_casa" name="telefono_casa" 
-                           value="{{ old('telefono_casa', $datos['telefono_casa'] ?? '') }}"
+                           value="{{ old('telefono_casa', $datos['telefono_casa'] ?? '') }}" placeholder="Ingresa tu teléfono de casa"
                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     @error('telefono_casa')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -862,28 +873,75 @@
 </div>
 
 <style>
+    :root {
+        --green: #22c55e;
+        --green-dark: #16a34a;
+        --text: #0f172a;
+        --muted: #5b677a;
+        --border: #e2e8f0;
+        --bg: #f8fafc;
+        --panel-bg: #ffffff;
+        --chip-bg: #f7fbf8;
+        --shadow: 0 14px 28px rgba(22,163,74,.12);
+    }
+    :root[data-theme="dark"] {
+        --text: #e5e7eb;
+        --muted: #9aa4b2;
+        --border: #374151;
+        --bg: #0b1220;
+        --panel-bg: #111827;
+        --chip-bg: #1f2937;
+        --shadow: 0 14px 28px rgba(0,0,0,.35);
+    }
+
+    body { padding-top: 0 !important; background: var(--bg); }
+
+    .container { max-width: 960px; display: flex; flex-direction: column; align-items: center; }
+
+    h1 { font-weight: 800; color: var(--text); }
+
     .form-section {
-        background: #f8f9fa;
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
         padding: 2rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        border-radius: 16px;
+        margin: 0 auto 2rem auto;
+        max-width: 960px;
+        box-shadow: var(--shadow);
     }
-    .btn-next, .btn-prev {
-        min-width: 120px;
+
+    legend { font-weight: 800; font-size: 1.25rem; color: var(--text); }
+
+    .form-label { font-weight: 600; color: var(--text); }
+
+    .form-control, .form-select { border-radius: 12px; }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--green);
+        box-shadow: 0 0 0 .2rem rgba(34,197,94,.15);
     }
-    .form-range {
-        width: 80%;
+
+    .progress { height: 10px; background: var(--chip-bg); border: 1px solid var(--border); border-radius: 12px; }
+    .progress-bar { background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); }
+
+    .btn-next, .btn-prev { min-width: 140px; border-radius: 12px; font-weight: 700; }
+    .btn-next { 
+        background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+        color: #fff; border: none; box-shadow: 0 10px 20px rgba(22,163,74,.25);
     }
-    .conditional-group {
-        background: #e9ecef;
-        padding: 1rem;
-        border-radius: 5px;
-        margin-top: 1rem;
+    .btn-prev { 
+        background: var(--chip-bg); color: var(--text); border: 1px solid var(--border);
     }
-    .alert {
-        margin-top: 1rem;
+
+    .btn-success { 
+        background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+        border: none; box-shadow: 0 10px 20px rgba(22,163,74,.25);
     }
+
+    .form-range { width: 80%; }
+    #motivacion-value { background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); }
+
+    .conditional-group { background: var(--chip-bg); padding: 1rem; border-radius: 10px; margin-top: 1rem; border: 1px solid var(--border); }
+    .alert { margin-top: 1rem; }
 </style>
 
 <script>
@@ -908,7 +966,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`/carrera/${carreraId}/grupos`)
             .then(response => response.json())
             .then(data => {
-                grupoSelect.innerHTML = '<option value="">Seleccione...</option>';
+                grupoSelect.innerHTML = '<option value="">Selecciona grupo...</option>';
                 data.forEach(grupo => {
                     const option = document.createElement('option');
                     option.value = grupo._id;
@@ -1219,4 +1277,6 @@ embarazadaSelect.addEventListener('change', function() {
     @endif
 });
 </script>
-@endsection
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
